@@ -317,10 +317,10 @@ class Loan_account extends CI_Controller {
     }
 
     public function schedule_review($schedule_id) {
-        if($loan_schedule = $this->Base_model->find("loan_Schedule", ['schedule_id' => $schedule_id])) {
+        if($loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id])) {
             $repayment_schedule = $this->Base_model->selectRepayment($loan_schedule->schedule_id);
             $data = [
-                "loan_Schedule" => $loan_schedule,
+                "loan_schedule" => $loan_schedule,
                 "repayment_schedule" => $repayment_schedule
             ];
             
