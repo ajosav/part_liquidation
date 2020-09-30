@@ -55,11 +55,11 @@ class Loan_account extends CI_Controller {
         $signedRequestParts = explode('.', $signedRequest);
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
-        // $loan_id = $mambuPostBack['OBJECT_ID'];
+        $loan_id = $mambuPostBack['OBJECT_ID'];
         // $loan_id = 10911356;
         $encoded_key = $mambuPostBack['USER_KEY'];
 		
-        $loan_id = 30462881;
+        // $loan_id = 30462881;
 
 		$endpointURL = $this->mambu_base_url . "api/users/" . $encoded_key;
         $user_key_response = $this->Base_model->call_mambu_api_get($endpointURL);
