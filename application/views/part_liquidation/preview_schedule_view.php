@@ -15,29 +15,29 @@
                                             <div class="form-group">
                                                 <div class="col-md-4">
                                                     <label for="data_file">Loan ID</label>
-                                                    <input type="hidden" name="accountHolderKey" id="accountHolderKey" value="<?= $loan_Schedule->accountHolderKey?>">
-                                                    <input type="hidden" name="schedule_id" id="schedule_id" value="<?= $loan_Schedule->schedule_id?>">
-                                                    <input type="email"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $loan_Schedule->loan_id ?>" title="Client Loan ID" readonly>
+                                                    <input type="hidden" name="accountHolderKey" id="accountHolderKey" value="<?= $loan_schedule->accountHolderKey?>">
+                                                    <input type="hidden" name="schedule_id" id="schedule_id" value="<?= $loan_schedule->schedule_id?>">
+                                                    <input type="email"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $loan_schedule->loan_id ?>" title="Client Loan ID" readonly>
                                                 </div>
                                                 <div class="col-md-8">
                                                     <label for="date_generated">Liquidation Amount</label>
-                                                    <input type="text"  placeholder="Liquidation Amount" name="liquidationAmount" class="form-control" value="<?= $loan_Schedule->liquidationAmount ?>" title="Liquidation Amount" readonly>
+                                                    <input type="text"  placeholder="Liquidation Amount" name="liquidationAmount" class="form-control" value="<?= $loan_schedule->liquidationAmount ?>" title="Liquidation Amount" readonly>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Principal Balance (After Liquidation)</label>
-                                                    <input type="text"  placeholder="Interest Rate" name="principal_balance" class="form-control" value="<?= $loan_Schedule->principalBalance ?>" title="Principal Balance" readonly>
+                                                    <input type="text"  placeholder="Interest Rate" name="principal_balance" class="form-control" value="<?= $loan_schedule->principalBalance ?>" title="Principal Balance" readonly>
                                                 </div>
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Loan Tenure</label>
-                                                    <input type="text"  placeholder="Interest Accrued" name="interest_accrued" class="form-control" value="<?= $loan_Schedule->tenure ?>" title="Interest Accrued" readonly>
+                                                    <input type="text"  placeholder="Interest Accrued" name="interest_accrued" class="form-control" value="<?= $loan_schedule->tenure ?>" title="Interest Accrued" readonly>
                                                 </div>
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Status</label>
                                                     <input type="text"  placeholder="Intrest Overdue" name="interest_overdue" class="form-control" value="
                                                         <?php
-                                                            switch($loan_Schedule->status) {
+                                                            switch($loan_schedule->status) {
                                                                     case('0') :
                                                                         echo "Pending User Confirmation";
                                                                     break;
@@ -62,11 +62,11 @@
                                             <div class="form-group">
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Payment Status</label>
-                                                    <input type="text"  placeholder="Payment Status" name="payment_status" class="form-control" value="<?= $loan_Schedule->paymentStatus ?>" title="Payment Status" readonly>
+                                                    <input type="text"  placeholder="Payment Status" name="payment_status" class="form-control" value="<?= $loan_schedule->paymentStatus ?>" title="Payment Status" readonly>
                                                 </div>
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Date Generated</label>
-                                                    <input type="text"  placeholder="Date Generated" name="date_generated" class="form-control" value="<?= $loan_Schedule->date_generated ?>" title="Date Generated" readonly>
+                                                    <input type="text"  placeholder="Date Generated" name="date_generated" class="form-control" value="<?= $loan_schedule->date_generated ?>" title="Date Generated" readonly>
                                                 </div>
                                                 
                                             </div>
