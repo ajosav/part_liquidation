@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Loan_account extends CI_Controller {
+class Client extends CI_Controller {
 
     public $mambu_base_url;
     private $today;
@@ -28,18 +28,13 @@ class Loan_account extends CI_Controller {
 
     }
 
-    //Method for app installation on MAMBU
-    public function install() {
-        
-    }
-
-    //Method for app uninstallation on MAMBU
-    public function uninstall() {
-        
-    }
+   
 
     public function index() {
-        echo "Welcome to Part liquidation App";
+         
+        $this->load->view('part_liquidation/meta_link');
+        $this->load->view('part_liquidation/client/preview_schedule'); 
+        $this->load->view('part_liquidation/footer_link');
     }
 
    
@@ -67,36 +62,6 @@ class Loan_account extends CI_Controller {
         return $outstanding_repayments;
     }
 
-    private function get_max_available_tenor($loan_id) {
-        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
-        $available_tenor = [];
-        foreach($repayments as $repayment) {
-            if((string) $repayment->state != "PAID" && (string) $repayment->state != "LATE") {
-                $available_tenor[] = $repayment;
-            }
-        }
-
-        return $available_tenor;
-    }
-
-  
-    public function schedule_review($schedule_id) {
-        if($loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id])) {
-            $repayment_schedule = $this->Base_model->selectRepayment($loan_schedule->schedule_id);
-            $data = [
-                "loan_schedule" => $loan_schedule,
-                "repayment_schedule" => $repayment_schedule
-            ];
-            
-            
-
-            $this->load->view('part_liquidation/meta_link');
-            $this->load->view('part_liquidation/preview_schedule_view', $data); 
-            $this->load->view('part_liquidation/footer_link');
-        } else {
-            redirect(base_url().'Loan_account/start');
-        }
-    }
 
 
     public function send_schedule_to_customer() {
