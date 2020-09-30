@@ -1,0 +1,21 @@
+<app>
+ <id>part_liquidation_app_id</id>
+ <name>Loan Part Liquidation</name>
+ <provider>RenmoneyIT</provider>
+ <description>An app to perfomr part liquidation on loan accounts</description>
+ <permission>VIEW_LOAN_ACCOUNT_DETAILS</permission>
+ <permission>APPROVE_LOANS</permission>
+ <permission>ENTER_REPAYMENT</permission>
+ <permission>DIBURSE_LOANS</permission>
+ <permission>VIEW_CLIENT_DETAILS</permission>
+ <permission>VIEW_DOCUMENTS</permission>
+ <permission>CREATE_DOCUMENTS</permission>
+ <permission>EDIT_DOCUMENTS</permission>
+ <uninstallUrl>https://renbrokerstaging.com/part_liquidation/Loans/uninstall</uninstallUrl>
+ <installUrl>https://renbrokerstaging.com/part_liquidation/Loans/install</installUrl>
+ <extensionpoint>
+ <location>LOAN_ACCOUNT_VIEW</location>
+ <label>PART LIQUIDATIONlabel>
+ <url>https://renbrokerstaging.com/part_liquidation/Loans/start</url>
+ </extensionpoint>
+</app>
