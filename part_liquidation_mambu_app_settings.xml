@@ -2,7 +2,7 @@
  <id>part_liquidation_app_id</id>
  <name>Loan Part Liquidation</name>
  <provider>RenmoneyIT</provider>
- <description>An app to perfomr part liquidation on loan accounts</description>
+ <description>An app to perform part liquidation on loan accounts</description>
  <permission>VIEW_LOAN_ACCOUNT_DETAILS</permission>
  <permission>APPROVE_LOANS</permission>
  <permission>ENTER_REPAYMENT</permission>

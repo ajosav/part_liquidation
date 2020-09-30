@@ -45,10 +45,13 @@
                                                                         echo "Awaiting Client Approval";
                                                                     break;
                                                                     case('2'):
-                                                                        echo "Applied on loan";
+                                                                        echo "Effected on loan";
                                                                     break;
                                                                     case('3'):
                                                                         echo "Rejected By Client";
+                                                                    break;
+                                                                    case('4'):
+                                                                        echo "OTP Validation";
                                                                     break;
                                                                     default:
                                                                         echo "Under Processing";

@@ -58,8 +58,9 @@ class Loan_account extends CI_Controller {
         $loan_id = $mambuPostBack['OBJECT_ID'];
         // $loan_id = 10911356;
         $encoded_key = $mambuPostBack['USER_KEY'];
-		
+
         // $loan_id = 30462881;
+
 
 		$endpointURL = $this->mambu_base_url . "api/users/" . $encoded_key;
         $user_key_response = $this->Base_model->call_mambu_api_get($endpointURL);
@@ -352,19 +353,32 @@ class Loan_account extends CI_Controller {
         
         $personal_email = $client_details['client']['emailAddress'];
         $client_name = $client_details['client']['firstName'];
-        $link = base_url() . "/view_schedule";
 
-        $this->Base_model->notifyMail(["{$personal_email}"], "Part-liquidation of your Loan Account", "
-            <p> <img src = 'https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
-            <p>Dear {$client_name}, </p>
-            <p>Please find attached the New repayment schedule based on your recent bulk payment N{$liquidationAmount} for your loan with ID {$loan} <br>
-            {$link} <br>
-            Click on the Link above to Accept or Reject.
-            For any enquiries, contact hello@renmoney.com</p>
-            <p>Thank you for choosing RenMoney MFB LTD. 
-            <br> <p>  <img src = 'https://www.renmoneyng.com/images/uploads/email-template-bottom.png ' alt = '' /> </p>
-        ");
-        
+
+        $valid_till =  $link = date("Y-m-d H:i:s", strtotime("+24 hours"));
+        $link = base64_encode(json_encode(['schedule_id' => $schedule_id, "valid_till" => $valid_till, "loan_id" => $loan]));
+        $link = base_url() . "client/loan_schedule/$link";
+
+        $email_body = [
+            "recipient" => [$personal_email],
+            "subject" => "Part-liquidation of your Loan Account",
+            "content" => "
+                <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
+                <p>Dear {$client_name}, </p>
+                <p>Please find attached the New repayment schedule based on your recent bulk payment N{$liquidationAmount} for your loan with ID {$loan} <br>
+                <a href='{$link}'>View Schedule</a> <br>
+                Click on the Link above to Accept or Reject.
+                For any enquiries, contact hello@renmoney.com</p>
+                <p>Thank you for choosing RenMoney MFB LTD. 
+                <br> <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
+            ",
+            "cc" => [],
+            "category" => ['Part-liquidation']
+        ];
+
+        $this->Base_model->notifyMail($email_body);
+        $this->Base_model->update_table("loan_schedule", ['loan_id' => $loan], ['status' => 1]);
+
         $this->load->view('part_liquidation/meta_link');
         $this->load->view('part_liquidation/email_successfully_sent'); 
         $this->load->view('part_liquidation/footer_link');

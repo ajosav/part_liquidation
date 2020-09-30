@@ -223,55 +223,43 @@ class Base_model extends CI_Model {
         return $this->db->query($query)->result_array();
     }
 
-
-    public function notifyMail($recipients = [], $subject, $body, $copy = [], $attachment = '') {
-	
-		if(empty($recipients) || $subject == '' || $body == '' ) {
-			return false;
-		}
-		require(APPPATH.'third_party/PHPMailer-master/class.phpmailer.php'); 
-		require(APPPATH.'third_party/PHPMailer-master/class.smtp.php');
-		require(APPPATH.'third_party/PHPMailer-master/PHPMailerAutoload.php');
-        
-		$mail = new PHPMailer();
-
-		$mail->isSMTP();                                      // Set mailer to use SMTP
-		$mail->Host = 'pod51014.outlook.com';  // Specify main and backup SMTP servers
-		$mail->SMTPAuth = true;                               // Enable SMTP authentication
-		$mail->Username = 'portaluser@renmoneyng.com';                 // SMTP username
-		$mail->Password = 'P@ssword1234567';                           // SMTP password
-		$mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
-		$mail->Port = 587;                                    // TCP port to connect to
-
-		$mail->setFrom('portaluser@renmoneyng.com', 'Backposting Process');
-
-		$mail->addAddress($recipients[0]);
-		// foreach($recipients as $recipient) {
-		// 	$mail->addAddress($recipient); // Add a recipient
-		// }
-		
-		if(!empty($copy)) {
-			foreach($recipients as $recipient) {
-				$mail->addCC($recipient);
-			}
-		}
-
-		if($attachment != '') {
-			$mail->addAttachment($attachment);
-			// $mail->AddStringAttachment($pdfString, 'Demand Note Renewal'.$reportDate.'to'.$endDateReport.'.pdf');
-		}
-	
-		$mail->isHTML(true);
-
-		$mail->Subject = $subject; 
-		$mail->Body    = $body; 
-		$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
-		//$this->email->send();
-		if(!$mail->send()) {
-			echo "Message could not be sent. \n";
-			echo 'Mailer Error: ' . $mail->ErrorInfo . "\n";
-		}
+    public function update_table($table_name, $key, array $update_data = []) {
+		$this->db->where($key);
+		return $this->db->update($table_name, $update_data);
 	}
+
+    public function notifyMail($email_body = []) {
+    
+        $body = json_encode($email_body);     
+        
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "http://prod.renmoney.com/emailapi/api/v1/send",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+                "RENMONEY-API-KEY: TGl2ZS1QYXNzd29yZDEyMzQ="
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        
+        return $response;
+
+		
+    }
+    
+
 
 
 }

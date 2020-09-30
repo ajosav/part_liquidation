@@ -65,10 +65,13 @@
 				
                     <div class="col-xs-6">
 			<!-- login user session -->
-				<?php// if (isset($_SESSION['username']) && $_SESSION['logged_in'] === true) : ?>
+               
                         <a href="#" class="admin-logo">
-						
-				<?php// endif; ?>
+                             <?php if(strpos($_SERVER["REQUEST_URI"], "Client/")):?>
+              
+                                <img src="<?= base_url() ?>assets_dashboard/images/renmoney-log22.png" >
+                         
+                            <?php endif ?>
                           
                         </a>
 				

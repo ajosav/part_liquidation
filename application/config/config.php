@@ -27,7 +27,7 @@ date_default_timezone_set('Africa/lagos');
 */
 // $config['base_url'] = '';
 $config['base_url'] = 'https://'.$_SERVER['HTTP_HOST'].'/part_liquidation/';
-// $config['base_url'] = 'http://localhost:8056/part_liquidation_app';
+// $config['base_url'] = 'http://localhost/part_liquidation_app';
 
 /*
 |--------------------------------------------------------------------------

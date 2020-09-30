@@ -202,6 +202,45 @@
             });
         });
 
+
+        $('button#reject_liquidation').click(function(e) {
+            e.preventDefault();
+            $('#exampleModalCenter').modal('show');
+        });
+        $('button#submit_rejection').click(function(e) {
+            $('.btn').button('loading')
+            if($('#rejection_reason').val() == '') {
+                alert('Please enter the reason for rejection');
+                $('.btn').button('reset');
+                return;
+            }
+            e.preventDefault();
+            var schedule_id = $(this).attr('data-id');
+
+            var form = $('form#rejection_form').serialize() + `&schedule_id=${schedule_id}`;
+            $.ajax({
+            url: base_url+"client/reject_schedule",
+            data: form,
+            type: "POST",
+            success: function(data) {
+                alert("Liquidation Schedule Successfully Declined ");
+                window.location.replace("https://www.renmoney.com")
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.status == 200) {
+                    alert(XMLHttpRequest.responseText);
+                    window.location.replace("https://www.renmoney.com/");
+                } else {
+                    alert(XMLHttpRequest.responseText);
+                    $('.btn').button('reset');
+                }
+            }
+        }).done(function() {
+        $('.btn').button('reset');
+        });
+
+});
+
         
     });
 </script>
