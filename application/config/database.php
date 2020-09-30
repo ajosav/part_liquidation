@@ -99,9 +99,9 @@ $db['default'] = array(
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'Peter',
-	'username' => 'P@ssword123',
-	'password' => '',
+	'hostname' => 'localhost',
+	'username' => 'Peter',
+	'password' => 'P@ssword123',
 	'database' => 'part_liquidation',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
