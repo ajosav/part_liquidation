@@ -14,8 +14,8 @@
  <uninstallUrl>https://renbrokerstaging.com/part_liquidation/Loans/uninstall</uninstallUrl>
  <installUrl>https://renbrokerstaging.com/part_liquidation/Loans/install</installUrl>
  <extensionpoint>
- <location>LOAN_ACCOUNT_VIEW</location>
- <label>PART LIQUIDATIONlabel>
- <url>https://renbrokerstaging.com/part_liquidation/Loans/start</url>
+    <location>LOAN_ACCOUNT_VIEW</location>
+    <label>PART LIQUIDATIONlabel></label>
+    <url>https://renbrokerstaging.com/part_liquidation/Loans/start</url>
  </extensionpoint>
 </app>
