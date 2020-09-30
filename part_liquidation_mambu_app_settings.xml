@@ -11,11 +11,11 @@
  <permission>VIEW_DOCUMENTS</permission>
  <permission>CREATE_DOCUMENTS</permission>
  <permission>EDIT_DOCUMENTS</permission>
- <uninstallUrl>https://renbrokerstaging.com/part_liquidation/Loans/uninstall</uninstallUrl>
- <installUrl>https://renbrokerstaging.com/part_liquidation/Loans/install</installUrl>
+ <uninstallUrl>https://renbrokerstaging.com/part_liquidation/Loan_account/uninstall</uninstallUrl>
+ <installUrl>https://renbrokerstaging.com/part_liquidation/Loan_account/install</installUrl>
  <extensionpoint>
     <location>LOAN_ACCOUNT_VIEW</location>
     <label>PART LIQUIDATION</label>
-    <url>https://renbrokerstaging.com/part_liquidation/Loans/start</url>
+    <url>https://renbrokerstaging.com/part_liquidation/Loan_account/start</url>
  </extensionpoint>
 </app>
