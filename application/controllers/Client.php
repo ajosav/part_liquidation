@@ -28,8 +28,6 @@ class Client extends CI_Controller {
 
     }
 
-   
-
     public function loan_schedule($url) {
         if(base64_encode(base64_decode($url)) != $url) {
             $this->load->view('part_liquidation/client/client_link_error'); 
@@ -73,29 +71,7 @@ class Client extends CI_Controller {
     }
 
    
-    private function get_next_repayment_due_date($loan_id) {
-        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
-
-        foreach($repayments as $index => $repayment) {
-            if($repayment->dueDate > $this->today) {
-                return $repayments[$index];
-            } 
-        }
-
-        return null;
-    }
-
-    private function get_outstanding_repayments($loan_id) {
-        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
-        $outstanding_repayments = [];
-        foreach($repayments as $repayment) {
-            if((string) $repayment->state != "PAID") {
-                $outstanding_repayments[] = $repayment;
-            }
-        }
-
-        return $outstanding_repayments;
-    }
+   
 
     public function reject_schedule() {
         $reason = $this->input->post('rejection_reason');
@@ -109,7 +85,6 @@ class Client extends CI_Controller {
         $loan_id = $this->input->post('loan_id');
 
         $email = ["EObukohwo@renmoney.com"];
-        $email = ["jadebayo@cloudware.ng"];
         $cc = [];
         
         $status = 3;
