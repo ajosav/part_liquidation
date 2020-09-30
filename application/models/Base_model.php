@@ -219,7 +219,7 @@ class Base_model extends CI_Model {
         return $this->db->get($table)->row();
     }
     public function selectRepayment($schedule_id) {
-        $query = "SELECT * FROM repayment_schedule WHERE schedule_id = '$schedule_id'";
+        $query = "SELECT * FROM repayment_schedule WHERE schedule_id = '$schedule_id' AND principalDue != 0";
         return $this->db->query($query)->result_array();
     }
 

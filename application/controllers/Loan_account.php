@@ -230,23 +230,28 @@ class Loan_account extends CI_Controller {
             } else {
                 $interest  = 0;
                 $fees_due = 0;
+                $penalty_due = 0;
                 foreach($repayments as $repayment) {
                     $fees_due += $repayment->feesDue;
                     $interest += $repayment->interestDue;
+                    $penalty_due += $repayment->penaltyDue;
                    
                 }
                 $interest = $interest / $tenor;
                 $fees_due = $fees_due / $tenor;
+                $penalty_due = $penalty_due / $tenor;
                 foreach($repayments as $index => $repayment) {
                     if($index < $tenor) {
                         $repayment->principalDue = $spread_principal;
                         $repayment->interestDue = $interest;
                         $repayment->feesDue = $fees_due;
+                        $repayment->penaltyDue = $penalty_due;
                         $new_schedule[] = $repayment;
                     } else {
                         $repayment->principalDue = 0;
                         $repayment->interestDue = 0;
                         $repayment->feesDue = 0;
+                        $repayment->penaltyDue = 0;
                         $new_schedule[] = $repayment;
                     }
                     
