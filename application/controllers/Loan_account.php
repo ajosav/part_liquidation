@@ -265,6 +265,7 @@ class Loan_account extends CI_Controller {
                 "transactionChannel" => $transction_channel,
                 "tenure" => $tenor,
                 "principalBalance" => abs(ceil($principal_remainder - ($principal_balance - $principal_due))),
+                "date_generated" => date('Y-m-d H:i:s'),
 
             ];
             
