@@ -6,8 +6,9 @@
 				<div class="col-lg-12">
                     <!-- START panel-->
                     <div class="panel panel-default">
-                        <div class="panel-heading">Loan Details</div>
+                        <div class="panel-heading">Loan Details </div>
                             <div class="panel-body">
+                                <div class="col-md-12 text-right"><a href="<?= base_url();?>Loan_account/liquidation_history/<?= $id ?>" class="btn btn-success"><i class="fa fa-history"></i> Liquidation History</a></div>
                                 <form class="form-horizontal" method="post" id="recalculate" action="<?= base_url() ?>Loan_account/recalculate_schedule" style="padding: 10px 40px;">
                     
                                     <div class="row">
@@ -69,12 +70,23 @@
                                                 
                                             </div>
                                             <div class="form-group">
-                                                <div class="col-lg-6">
+                                                <div class="col-lg-4">
                                                     <label for="date_generated">Part-Liquidation Amount</label>
                                                     <input type="text"  placeholder="Part Liquidation Amount" name="part_liq_amount" class="form-control" value="" title="Outstanding Tenor" required>
                                                     <span class="help-block" id="liquidation_amount" style="color: red;"></span>
                                                 </div>
-                                                <div class="col-lg-6">
+                                                <div class="col-lg-3">
+                                                    <label for="date_generated">Repayment Tenor</label>
+                                                    <div class="radio">
+                                                        <label class="radio-inline">    
+                                                            <input type="radio" id="maintain_tenor" name="tenure_type" value="maintain" checked required>Maintain Tenor
+                                                        </label>
+                                                        <label class="radio-inline">
+                                                            <input type="radio" id="new_tenor" name="tenure_type" value="new">New Tenor
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-5">
                                                     <label for="tenor">Repayment Tenor (<?= strtolower($repaymentPeriodUnit) ?>)</label>
                                                     <input type="text"  placeholder="Repayment Tenor" name="repayment_tenor" class="form-control" value="<?= count($max_tenor) ?>" title="Loan Repayment Tenor" required>
                                                     <span class="help-block" id="payment_tenor" style="color: red;"></span>

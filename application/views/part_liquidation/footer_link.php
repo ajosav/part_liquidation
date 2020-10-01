@@ -202,7 +202,6 @@
             });
         });
 
-
         $('button#reject_liquidation').click(function(e) {
             e.preventDefault();
             $('#exampleModalCenter').modal('show');
@@ -239,9 +238,25 @@
         $('.btn').button('reset');
         });
 
-});
+       
 
-        
+         });
+
+
+        $("input[name='tenure_type']").change(function() {
+            if($(this).val() == 'new') {
+                $("input[name='repayment_tenor']").prop('disabled', false)
+            } else {
+                $("input[name='repayment_tenor']").prop('disabled', true)
+            }
+        })
+        $("input[name='tenure_type']").each(function() {
+            if(this.checked == 'new') {
+                $("input[name='repayment_tenor']").prop('disabled', false)
+            } else {
+                $("input[name='repayment_tenor']").prop('disabled', true)
+            }
+        });
     });
 </script>
 <!-- Mirrored from bootstraplovers.com/templates/float-admin-v1.1/light-version/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Apr 2017 15:23:24 GMT -->

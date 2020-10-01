@@ -211,7 +211,8 @@ class Base_model extends CI_Model {
     
     public function findWhere($table_name, $condition) {
         $this->db->where($condition);
-		return $this->db->get($table_name, $condition)->result_array();
+		return $this->db->get($table_name)->result_array();
+		// return $this->db->get_compiled_select($table_name);
 	}
 
     public function find($table, array $data) {
@@ -253,13 +254,37 @@ class Base_model extends CI_Model {
         $response = curl_exec($curl);
 
         curl_close($curl);
-        
+
         return $response;
 
-		
     }
     
+    public function sendSms($body) {
+        $sms_body = json_encode($body);
+        $curl = curl_init();
 
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://renbroker.com/sms_system/api/Sms/send",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => $sms_body,
+        CURLOPT_HTTPHEADER => array(
+            "RENMONEY-SMS-KEY: 4Opo57425A0dS7Y3o4y2P47Ww00g949B",
+            "Content-Type: application/json"
+        ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
+
+    }
 
 
 }

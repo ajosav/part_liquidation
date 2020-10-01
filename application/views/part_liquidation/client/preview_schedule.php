@@ -8,13 +8,19 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">Repayment Schedule</div>
                             <div class="panel-body">
-                                <form class="form-horizontal" method="post" style="padding: 10px 40px;">
+                                <form class="form-horizontal" method="post" action="<?= base_url() ?>Client/accept_schedule" style="padding: 10px 40px;">
                     
                                     <div class="row">
                                         <div class="form-row">
                                             <div class="form-group">
                                                 <div class="col-md-4">
                                                     <label for="data_file">Loan ID</label>
+                                                    
+                                                    <input type="hidden" name="client_fname" value="<?= $client_details['client']['firstName'] ?>">
+                                                    <input type="hidden" name="client_lname" value="<?= $client_details['client']['lastName'] ?>">
+                                                    <input type="hidden" name="client_mname" value="<?= $client_details['client']['middleName'] ?>">
+                                                    <input type="hidden" name="client_email" value="<?= $client_details['client']['emailAddress'] ?>">
+                                                    <input type="hidden" name="client_phone" value="<?= $client_details['client']['mobilePhone1'] ?>">
                                                     <input type="hidden" name="accountHolderKey" id="accountHolderKey" value="<?= $loan_schedule->accountHolderKey?>">
                                                     <input type="hidden" name="schedule_id" id="schedule_id" value="<?= $loan_schedule->schedule_id?>">
                                                     <input type="text"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $loan_schedule->loan_id ?>" title="Client Loan ID" readonly>

@@ -49,8 +49,8 @@ class Loan_account extends CI_Controller {
 	* 
 	*/
     public function start() {
-		$signedRequest = $this->input->post('signed_request'); // Script to get cleint data from Mambu
-        // $signedRequest= "e6d8b59f768c956c8b5b0df34f78c7b7df7e237d60f0ef52bb1c3478c4102880.eyJET01BSU4iOiJyZW5tb25leS5zYW5kYm94Lm1hbWJ1LmNvbSIsIk9CSkVDVF9JRCI6IjEwOTExMzU2IiwiQUxHT1JJVEhNIjoiaG1hY1NIQTI1NiIsIlRFTkFOVF9JRCI6InJlbm1vbmV5IiwiVVNFUl9LRVkiOiI4YTlmODdkMTc0OTE1YjYxMDE3NDkxN2MxZmE5MDAxMiJ9";
+		// $signedRequest = $this->input->post('signed_request'); // Script to get cleint data from Mambu
+        $signedRequest= "e6d8b59f768c956c8b5b0df34f78c7b7df7e237d60f0ef52bb1c3478c4102880.eyJET01BSU4iOiJyZW5tb25leS5zYW5kYm94Lm1hbWJ1LmNvbSIsIk9CSkVDVF9JRCI6IjEwOTExMzU2IiwiQUxHT1JJVEhNIjoiaG1hY1NIQTI1NiIsIlRFTkFOVF9JRCI6InJlbm1vbmV5IiwiVVNFUl9LRVkiOiI4YTlmODdkMTc0OTE1YjYxMDE3NDkxN2MxZmE5MDAxMiJ9";
         
         $signedRequestParts = explode('.', $signedRequest);
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
@@ -272,7 +272,7 @@ class Loan_account extends CI_Controller {
                 "tenure" => $tenor,
                 "principalBalance" => abs(ceil($principal_remainder - ($principal_balance - $principal_due))),
                 "date_generated" => date('Y-m-d H:i:s'),
-
+                "outstandingBalance" => $outstanding_balance
             ];
             
             $schedule_data = [];
@@ -285,13 +285,13 @@ class Loan_account extends CI_Controller {
                         "interestDue" => $schedule->interestDue,
                         "principalDue" => $schedule->principalDue,
                         "dueDate" => $schedule->dueDate,
-                        "penaltyDue" => $schedule->dueDate,
+                        "penaltyDue" => $schedule->penaltyDue,
                         "feesDue" => $schedule->feesDue,
                         "parentAccountKey" => $schedule->parentAccountKey
                     ];
                     array_push($schedule_data, $data);
                 }
-               if($this->Base_model->createBatch('repayment_schedule', $schedule_data)) {
+                if($this->Base_model->createBatch('repayment_schedule', $schedule_data)) {
                     return $this->output
                     ->set_content_type('application/json')
                     ->set_status_header(200)
@@ -317,7 +317,7 @@ class Loan_account extends CI_Controller {
             ->set_content_type('application/json')
             ->set_status_header(400)
             ->set_output(
-                json_encode("Liquidation amount is not lower than fees due")
+                json_encode("Liquidation amount is not lower than total due")
             );
        
     }
@@ -353,9 +353,10 @@ class Loan_account extends CI_Controller {
         
         $personal_email = $client_details['client']['emailAddress'];
         $client_name = $client_details['client']['firstName'];
+        // $personal_email = "jadebayo@renmoney.com";
 
 
-        $valid_till =  $link = date("Y-m-d H:i:s", strtotime("+24 hours"));
+        $valid_till = date("Y-m-d H:i:s", strtotime("+24 hours"));
         $link = base64_encode(json_encode(['schedule_id' => $schedule_id, "valid_till" => $valid_till, "loan_id" => $loan]));
         $link = base_url() . "client/loan_schedule/$link";
 
@@ -382,6 +383,16 @@ class Loan_account extends CI_Controller {
         $this->load->view('part_liquidation/meta_link');
         $this->load->view('part_liquidation/email_successfully_sent'); 
         $this->load->view('part_liquidation/footer_link');
+    }
+
+    public function liquidation_history($loan_id) {
+        $loan_schedule = $this->Base_model->findWhere("loan_schedule", ['loan_id' => $loan_id]);
+        $data = [
+            "loan_schedule" => $loan_schedule
+        ];
+		$this->load->view('part_liquidation/meta_link');
+		$this->load->view('part_liquidation/liquidation_history', $data); 
+		$this->load->view('part_liquidation/footer_link');
     }
 	
 

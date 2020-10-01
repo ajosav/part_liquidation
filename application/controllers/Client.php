@@ -35,7 +35,9 @@ class Client extends CI_Controller {
         }
         
         $link = json_decode(base64_decode($url));
-        // var_dump($_SERVER['QUERY_STRING']);
+
+        
+        // $this->Base_model->dd($back_date);
         
         $schedule_id = $link->schedule_id;
         $valid_till = $link->valid_till;
@@ -45,9 +47,9 @@ class Client extends CI_Controller {
             return false;
         }
         // $datetime = date('Y-m-d H:i:s',strtotime('1 hour', strtotime($today)));
+        $back_date = date('Y-m-d H:i:s', strtotime("-24 hours", strtotime($this->today)));
         $validity = date('Y-m-d H:i:s', strtotime("+24 hours", strtotime($loan_schedule->date_generated)));
-        
-        if(($valid_till > $validity) || ($valid_till < $this->today)) {
+        if($back_date > $valid_till || $validity > $valid_till ) {
             $this->load->view('part_liquidation/client/client_link_error');
             return false;
         }
@@ -195,6 +197,78 @@ class Client extends CI_Controller {
         $this->load->view('part_liquidation/meta_link');
         $this->load->view('part_liquidation/email_successfully_sent'); 
         $this->load->view('part_liquidation/footer_link');
+    }
+
+    public function accept_schedule() {
+
+        $schedule_id = $this->input->post('schedule_id');
+        $rejection_state = $this->input->post('rejection_state');
+        $client_fname = $this->input->post('client_fname');
+        $client_lname = $this->input->post('client_lname');
+        $client_mname = $this->input->post('client_mname');
+        $client_email = $this->input->post('client_email');
+        $client_phone = $this->input->post('client_phone');
+        $loan_id = $this->input->post('loan_id');
+
+
+        $otp = rand(100000, 999999);
+        $this->Base_model->create(
+            "otp",
+            [
+                "otp" => $otp,
+                "receiver_no" => $client_phone,
+                "duration" => 15,
+                "date_created" => date('Y-m-d H:i:s'),
+            ]
+        );
+        $otp_mail_body = [
+            "recipient" => [$client_email],
+            "subject" => "Renmoney MFB LTD. One Time Password",
+            "content" => "
+                <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
+                <p>Dear {$client_fname}</p>
+                <p>This is your one time password {$otp} <br>
+                    if you did not initiate this process, please contact hello@renmoney.com
+                </p>
+                <p>Thank you for choosing RenMoney MFB LTD. </p>
+                <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
+            ",
+            "cc" => [],
+            "category" => ['Part-liquidation']
+        ];
+
+        $otp_body = [
+            "phone_number" => $client_phone,
+            "message" => "Renmoney Loan Liquidation (OTP): {$otp}"
+        ];
+
+        $number = $client_email;
+        echo $this->maskPhoneNumber($number);
+        
+
+      
+    }
+
+    private function maskPhoneNumber($number){
+        $length = strlen($number);
+        $middle_string ="";
+        if( $length < 3 ){
+
+            return $length == 1 ? "*" : "*". substr($number,  - 1);
+
+        }
+        else{
+            $part_size = floor( $length / 3 ) ; 
+            $middle_part_size = $length - ( $part_size * 2 );
+            for( $i=0; $i < $middle_part_size ; $i ++ ){
+                $middle_string .= "*";
+            }
+
+            return  substr($number, 0, $part_size ) . $middle_string  . substr($number,  - $part_size );
+        }
+        // $mask_number =  str_repeat("*", strlen($number)-4) . substr($number, -4);
+        
+        // return $mask_number;
     }
 	
 

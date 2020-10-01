@@ -82,6 +82,7 @@
                                                         <th>Interest Due</th>
                                                         <th>Fees Due</th>
                                                         <th>Penalty Due</th>
+                                                        <th>Total Due</th>
                                                         
                                                     </tr>
                                                 </thead>
@@ -97,6 +98,7 @@
                                                                 <td><?= number_format($repayments['interestDue'], 2); ?></td>
                                                                 <td><?= number_format($repayments['feesDue'], 2); ?></td>
                                                                 <td><?= number_format($repayments['penaltyDue'], 2); ?></td>
+                                                                <td><?= number_format(($repayments['penaltyDue'] + $repayments['principalDue'] + $repayments['interestDue'] + $repayments['feesDue']), 2); ?></td>
                                                             </tr>
                                                         
                                                         <?php endforeach ?> 
@@ -104,9 +106,19 @@
                                                 </tbody>
                                             </table>
                                             <div class="form-group">
-                                                <div class="col-lg-12 text-center">
-                                                    <button type="submit" class="btn btn-success" style="margin:5px;" id="recalcaculate_schedule" title="Recalculate Client Loan Repayment Schedule">Send To Customer Email</button>
-                                                </div>
+                                                <?php
+                                                    $today = date('Y-m-d H:i:s');
+                                                    $back_date = date('Y-m-d H:i:s', strtotime("-24 hours", strtotime($today)));
+                                                    $db_forwardDate = date('Y-m-d H:i:s', strtotime("+24 hours", strtotime($loan_schedule->date_generated)));
+                                                    if(($loan_schedule->status == 2) || ($loan_schedule->status == 3) || $back_date > $db_forwardDate ) :?>
+                                                    <div class="col-lg-12 text-center">
+                                                        <a  href="#" disabled class="btn btn-disable" style="margin:5px;" title="Cannot Send Link">No action required</a>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <div class="col-lg-12 text-center">
+                                                        <button type="submit" class="btn btn-success" style="margin:5px;" id="recalcaculate_schedule" title="Recalculate Client Loan Repayment Schedule">Send To Customer Email</button>
+                                                    </div>
+                                                <?php endif ?>
                                             </div>
 
                                         </div>
