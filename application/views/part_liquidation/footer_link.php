@@ -257,6 +257,81 @@
                 $("input[name='repayment_tenor']").prop('disabled', true)
             }
         });
+
+        $("form#otp_validation").submit(function(e) {
+            e.preventDefault();
+            var form = $('form#otp_validation').serialize();
+            $otp_error = $('#otp_error');
+            $('.btn').button('loading')
+            $.ajax({
+                url: base_url+"client/otp_validation",
+                type: "post",
+                headers: {
+                    "accept": "application/json",
+                    "Access-Control-Allow-Origin":"*"
+                },
+                data: form,
+                crossDomain: true,
+                success: function(data) {
+                    if(data.status == 'created') {
+                        alert(data.message);
+                    }
+                    // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    if(XMLHttpRequest.status == 200) {
+                        console.log(XMLHttpRequest)
+                        alert(XMLHttpRequest.responseText);
+                        // window.location.reload();
+                    } else {
+                    otp_error.html(XMLHttpRequest.responseText);
+                        $('.btn').button('reset');
+                    }
+                }
+            }).done(function() {
+                $('.btn').button('reset');
+            });
+
+            
+        })
+        $('#resend_otp').click(function(e) {
+            e.preventDefault();
+            var form = $('form#otp_validation').serialize();
+            otp_error = $('#otp_error');
+            otp_success = $('#otp_resend_success');
+            
+            otp_success.html('')
+            otp_error.html('')
+
+            $('.btn').button('loading')
+            $.ajax({
+                url: base_url+"client/resend_otp",
+                type: "post",
+                headers: {
+                    "accept": "application/json",
+                    "Access-Control-Allow-Origin":"*"
+                },
+                data: form,
+                crossDomain: true,
+                success: function(data) {
+                   otp_success.html(data)
+                    // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    if(XMLHttpRequest.status == 200) {  
+                        otp_success.html(XMLHttpRequest.responseText);
+                        $('#otp_resend_success').css('display', 'block')
+                        // window.location.reload();
+                    } else {
+                        otp_error.html(XMLHttpRequest.responseText);
+                        $('.btn').button('reset');
+                    }
+                }
+            }).done(function() {
+                $('.btn').button('reset');
+            });
+                
+        })
     });
 </script>
 <!-- Mirrored from bootstraplovers.com/templates/float-admin-v1.1/light-version/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Apr 2017 15:23:24 GMT -->

@@ -54,6 +54,7 @@
                                                         <th>Interest Due</th>
                                                         <th>Fees Due</th>
                                                         <th>Penalty Due</th>
+                                                        <th>Total Due</th>
                                                         
                                                     </tr>
                                                 </thead>
@@ -69,6 +70,7 @@
                                                                 <td><?= number_format($repayments['interestDue'], 2); ?></td>
                                                                 <td><?= number_format($repayments['feesDue'], 2); ?></td>
                                                                 <td><?= number_format($repayments['penaltyDue'], 2); ?></td>
+                                                                <td><?= number_format(($repayments['principalDue'] + $repayments['feesDue'] + $repayments['penaltyDue'] + $repayments['interestDue']), 2); ?></td>
                                                             </tr>
                                                         
                                                         <?php endforeach ?> 

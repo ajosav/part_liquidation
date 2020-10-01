@@ -28,7 +28,7 @@ class Client extends CI_Controller {
 
     }
 
-    public function loan_schedule($url) {
+    public function loan_schedule($url = "") {
         if(base64_encode(base64_decode($url)) != $url) {
             $this->load->view('part_liquidation/client/client_link_error'); 
             return false;
@@ -199,16 +199,110 @@ class Client extends CI_Controller {
     }
 
     public function accept_schedule() {
-
+        if($this->input->method() != "post") {
+            redirect(base_url().'Client/loan_schedule');
+        }
         $schedule_id = $this->input->post('schedule_id');
-        $rejection_state = $this->input->post('rejection_state');
         $client_fname = $this->input->post('client_fname');
         $client_lname = $this->input->post('client_lname');
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
         $loan_id = $this->input->post('loan_id');
 
+        $client_phone = "2348137512747";
+        $client_email = "ajosavboy@gmail.com";
 
+        $this->send_otp($client_phone, $client_email, $client_fname);
+       
+        $data = [
+            "schedule_id" => $schedule_id,
+            "client_fname" => $client_fname,
+            "client_lname" => $client_lname,
+            "client_email" => $client_email,
+            "phone" => $this->maskPhoneNumber($client_phone),
+            "loan_id" => $loan_id
+        ];
+        $this->load->view('part_liquidation/meta_link');
+        $this->load->view('part_liquidation/client/otp_verification', $data); 
+        $this->load->view('part_liquidation/footer_link');
+      
+    }
+
+    public function resend_otp() {
+        if($this->input->method() != "post") {
+            redirect(base_url().'Client/loan_schedule');
+        }
+
+        $schedule_id = $this->input->post('schedule_id');
+        $client_fname = $this->input->post('client_fname');
+        $client_lname = $this->input->post('client_lname');
+        $client_email = $this->input->post('client_email');
+        $loan_id = $this->input->post('loan_id');
+        $loan_schedule = $this->Base_model->find('loan_schedule', ['schedule_id' => $schedule_id]);
+        $client_encoded_key = $loan_schedule->accountHolderKey;
+
+        $endpointURL = $this->mambu_base_url . "api/clients/" . $client_encoded_key ."?fullDetails=true";
+        $response = $this->Base_model->call_mambu_api_get($endpointURL);
+        $response = json_decode($response, TRUE);
+        if($response && !isset($response['return_code'])) {
+
+            $client_phone = $response['client']['mobilePhone1'];
+    
+            $this->send_otp($client_phone, $client_email, $client_fname);
+
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(
+                json_encode('OTP resent to your email and phone')
+            );  
+        }
+
+        return $this->output
+        ->set_content_type('application/json')
+        ->set_status_header(400)
+        ->set_output(
+            json_encode('Connection Lost')
+        );       
+    }
+
+    public function otp_validation() {
+        if($this->input->method() != "post") {
+            redirect(base_url().'Client/loan_schedule');
+        }
+
+        $schedule_id = $this->input->post('schedule_id');
+        $client_fname = $this->input->post('client_fname');
+        $client_lname = $this->input->post('client_lname');
+        $client_email = $this->input->post('client_email');
+        $loan_id = $this->input->post('loan_id');
+        $otp_code = $this->input->post('otp');
+
+        if(!$otp_info = $this->Base_model->find("otp", ['otp' => $otp_code])) {
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(400)
+            ->set_output(
+                json_encode('Invalid OTP')
+            );
+        }
+        $duration = (int) $otp_info->duration;
+
+        $back_time = date('Y-m-d H:i:s', strtotime("-{$duration} mins"));
+
+        if($back_time > $otp_info->date_created) {
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(400)
+            ->set_output(
+                json_encode('Invalid OTP')
+            );
+        }
+
+       
+    }
+
+    private function send_otp($client_phone, $client_email, $client_fname) {
         $otp = rand(100000, 999999);
         $this->Base_model->create(
             "otp",
@@ -240,11 +334,8 @@ class Client extends CI_Controller {
             "message" => "Renmoney Loan Liquidation (OTP): {$otp}"
         ];
 
-        $number = $client_email;
-        echo $this->maskPhoneNumber($number);
-        
-
-      
+        $this->Base_model->sendSms($otp_body);
+        $this->Base_model->notifyMail($otp_mail_body);
     }
 
     private function maskPhoneNumber($number){

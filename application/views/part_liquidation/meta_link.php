@@ -63,7 +63,7 @@
             <div class="container-fluid">
                 <div class="row">
 				
-                    <div class="col-xs-6">
+                    <div class="col-lg-6">
 			<!-- login user session -->
                
                         <a href="#" class="admin-logo">
@@ -74,34 +74,8 @@
                             <?php endif ?>
                           
                         </a>
-				
-                        <div class="left-nav-toggle visible-xs visible-sm">
-                            <a href="#">
-                                <i class="glyphicon glyphicon-menu-hamburger"></i>
-                            </a>
-                        </div><!--end nav toggle icon-->
-                        <!--start search form-->
-                       <!-- <div class="search-form hidden-xs">
-                            <form>
-                                <input type="text" class="form-control" placeholder="Search for...">
-                                <button type="button" class="btn-search"><i class="fa fa-search"></i></button>
-                            </form>
-                        </div>-->
-                        <!--end search form-->
                     </div>
 					
-				
-                    <div class="col-xs-6">
-                        <ul class="list-inline top-right-nav">
-                     
-							
-						 
-							
-                           
-							 </li> 
- </li> 
-                        </ul> 
-                    </div>
                 </div>
             </div>
         </div>
