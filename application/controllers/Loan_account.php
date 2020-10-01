@@ -366,7 +366,9 @@ class Loan_account extends CI_Controller {
             "content" => "
                 <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
                 <p>Dear {$client_name}, </p>
-                <p>Please find attached the New repayment schedule based on your recent bulk payment N{$liquidationAmount} for your loan with ID {$loan} <br>
+                <p>Please see below the new repayment schedule based on your Part Liquidation Request<br>
+                Liquidation Amount: N{$liquidationAmount} <br>
+                Loan ID: {$loan} <br>
                 <a href='{$link}'>View Schedule</a> <br>
                 Click on the Link above to Accept or Reject.
                 For any enquiries, contact hello@renmoney.com</p>

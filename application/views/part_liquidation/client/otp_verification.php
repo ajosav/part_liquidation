@@ -10,7 +10,7 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">OTP Validation</div>
                         <div class="panel-body text-center">
-                            <div class="alert alert-succes" style="display: none;" id="otp_resend_success">
+                            <div class="alert alert-success" style="display: none;" id="otp_resend_success">
                             </div>
                             <form method="post" action="<?=base_url()?>Client/otp_validation" id="otp_validation">
                                 <div class="form-row">

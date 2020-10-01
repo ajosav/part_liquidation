@@ -71,7 +71,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-lg-4">
-                                                    <label for="date_generated">Part-Liquidation Amount</label>
+                                                    <label for="date_generated">Part-Liquidation Amount (&#8358;)</label>
                                                     <input type="text"  placeholder="Part Liquidation Amount" name="part_liq_amount" class="form-control" value="" title="Outstanding Tenor" required>
                                                     <span class="help-block" id="liquidation_amount" style="color: red;"></span>
                                                 </div>

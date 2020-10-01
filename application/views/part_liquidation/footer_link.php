@@ -245,16 +245,16 @@
 
         $("input[name='tenure_type']").change(function() {
             if($(this).val() == 'new') {
-                $("input[name='repayment_tenor']").prop('disabled', false)
+                $("input[name='repayment_tenor']").prop('readonly', false)
             } else {
-                $("input[name='repayment_tenor']").prop('disabled', true)
+                $("input[name='repayment_tenor']").prop('readonly', true)
             }
         })
         $("input[name='tenure_type']").each(function() {
             if(this.checked == 'new') {
-                $("input[name='repayment_tenor']").prop('disabled', false)
+                $("input[name='repayment_tenor']").prop('readonly', false)
             } else {
-                $("input[name='repayment_tenor']").prop('disabled', true)
+                $("input[name='repayment_tenor']").prop('readonly', true)
             }
         });
 

@@ -36,7 +36,7 @@
                                             <div class="form-group">
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Principal Balance (After Liquidation)</label>
-                                                    <input type="text"  placeholder="Interest Rate" name="principal_balance" class="form-control" value="<?= $loan_schedule->principalBalance ?>" title="Principal Balance" readonly>
+                                                    <input type="text"  placeholder="Interest Rate" name="principal_balance" class="form-control" value="<?= number_format($loan_schedule->principalBalance, 2) ?>" title="Principal Balance" readonly>
                                                 </div>
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Loan Tenure</label>
