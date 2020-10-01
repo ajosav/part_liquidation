@@ -227,7 +227,7 @@ class Base_model extends CI_Model {
     public function update_table($table_name, $key, array $update_data = []) {
 		$this->db->where($key);
 		return $this->db->update($table_name, $update_data);
-	}
+    }
 
     public function notifyMail($email_body = []) {
     

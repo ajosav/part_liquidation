@@ -99,13 +99,30 @@ class Loan_account extends CI_Controller {
 
 		} else {
 			foreach($gl_accounts as $gls) {
-				$name = $gls['name'];
-                $id = $gls['id'];
-                $active = $gls['id'] == $trans_id ? 'selected' : '';
-				$gl_names .= "<option value='{$id}' data-id='{$id}' {$active}> {$name} </option>";
+                if($gls['id'] != 'XXXXXXXXXXXX') {
+                    $name = $gls['name'];
+                    $id = $gls['id'];
+                    $active = $gls['id'] == $trans_id ? 'selected' : '';
+                    $gl_names .= "<option value='{$id}' data-id='{$id}' {$active}> {$name} </option>";
+                }
+				
 			}
         }
         
+
+        $trans_methods_url = $this->mambu_base_url . "api/customfields/Repayment_Method_Transactions";
+        $repayment_response = json_decode($this->Base_model->call_mambu_api_get($trans_methods_url), TRUE);
+
+        $methods = "";
+        $repayment_methods = $repayment_response['customFieldSelectionOptions'];
+        foreach($repayment_methods as $payment_methods) {
+            $value = $payment_methods['value'];
+            $encodedKey = $payment_methods['encodedKey'];
+            $methods .= "<option value='{$value}' data-id='{$encodedKey}'> {$value} </option>";
+        }
+    
+
+
         // $this->Base_model->dd($this->Base_model->fetch_gl_accounts());
 			
 		$data['client_email'] = $personal_email;
@@ -117,6 +134,7 @@ class Loan_account extends CI_Controller {
         $data['max_tenor'] = $this->get_max_available_tenor($loan_id);
         $data['outstanding_repayments'] = count($this->get_outstanding_repayments($loan_id));
         $data['transaction_channel'] = $gl_names;
+        $data['transaction_method'] = $methods;
 		
 		$this->load->view('part_liquidation/meta_link');
 		$this->load->view('part_liquidation/account_details', $data); 
@@ -211,6 +229,7 @@ class Loan_account extends CI_Controller {
         $payment_status = $this->input->post('payment_status');
         $transaction_date = $this->input->post('transaction_date');
         $transction_channel = $this->input->post('transaction_channel');
+        $transaction_method = $this->input->post('transaction_method');
 
         $principal_remainder = $liquidation_amount - ($interest_overdue) - ($penalty_due) - ($interest_accrued + $fees_due) - ($principal_due);
         $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($interest_accrued + $fees_due) + ($principal_due);
@@ -269,6 +288,7 @@ class Loan_account extends CI_Controller {
                 "paymentStatus" => $payment_status,
                 "transactionDate" => $transaction_date,
                 "transactionChannel" => $transction_channel,
+                "transaction_method" => $transaction_method,
                 "tenure" => $tenor,
                 "principalBalance" => abs(ceil($principal_remainder - ($principal_balance - $principal_due))),
                 "date_generated" => date('Y-m-d H:i:s'),

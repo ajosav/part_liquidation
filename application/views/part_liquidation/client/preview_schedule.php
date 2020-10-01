@@ -44,39 +44,62 @@
                                                 </div>
 
                                             </div>
-                                            
-                                            <table class="table table-striped dt-responsive nowrap">
-                                                <thead>
-                                                    <tr>
-                                                        <th>S/N</th>
-                                                        <th>Due Date</th>
-                                                        <th>Principal Due</th>
-                                                        <th>Interest Due</th>
-                                                        <th>Fees Due</th>
-                                                        <th>Penalty Due</th>
-                                                        <th>Total Due</th>
-                                                        
-                                                    </tr>
-                                                </thead>
+                                            <?php if(count($repayment_schedule) > 0): ?> 
+                                                <table class="table table-striped dt-responsive nowrap">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>S/N</th>
+                                                            <th>Due Date</th>
+                                                            <th>Principal Due</th>
+                                                            <th>Interest Due</th>
+                                                            <th>Fees Due</th>
+                                                            <th>Penalty Due</th>
+                                                            <th>Total Due</th>
+                                                            
+                                                        </tr>
+                                                    </thead>
 
-                                                <tbody> 
-                                                    <?php if(count($repayment_schedule) > 0): ?>    
-
-                                                        <?php $sn = 1; foreach($repayment_schedule as $repayments): ?> 
-                                                            <tr>
-                                                                <td><?= $sn++; ?></td>
-                                                                <td><?= $repayments['dueDate'];?></td>
-                                                                <td><?= number_format($repayments['principalDue'], 2); ?></td>
-                                                                <td><?= number_format($repayments['interestDue'], 2); ?></td>
-                                                                <td><?= number_format($repayments['feesDue'], 2); ?></td>
-                                                                <td><?= number_format($repayments['penaltyDue'], 2); ?></td>
-                                                                <td><?= number_format(($repayments['principalDue'] + $repayments['feesDue'] + $repayments['penaltyDue'] + $repayments['interestDue']), 2); ?></td>
-                                                            </tr>
+                                                    <tbody> 
                                                         
-                                                        <?php endforeach ?> 
-                                                    <?php endif ?>
-                                                </tbody>
-                                            </table>
+
+                                                            <?php 
+                                                                $sn = 1; 
+                                                                $t_principal = 0;
+                                                                $t_interest = 0;
+                                                                $t_fees = 0;
+                                                                $t_penalty = 0;
+                                                                foreach($repayment_schedule as $repayments): ?> 
+                                                                    <tr>
+                                                                        <td><?= $sn++; ?></td>
+                                                                        <td><?= $repayments['dueDate'];?></td>
+                                                                        <td><?= number_format($repayments['principalDue'], 2); ?></td>
+                                                                        <td><?= number_format($repayments['interestDue'], 2); ?></td>
+                                                                        <td><?= number_format($repayments['feesDue'], 2); ?></td>
+                                                                        <td><?= number_format($repayments['penaltyDue'], 2); ?></td>
+                                                                        <td><?= number_format(($repayments['principalDue'] + $repayments['feesDue'] + $repayments['penaltyDue'] + $repayments['interestDue']), 2); ?></td>
+                                                                    </tr>
+                                                                    <?php 
+                                                                        $t_principal += $repayments['principalDue'];
+                                                                        $t_interest += $repayments['interestDue'];
+                                                                        $t_fees += $repayments['feesDue'];
+                                                                        $t_penalty += $repayments['penaltyDue'];
+                                                                    
+                                                                    ?>
+                                                            
+                                                            <?php endforeach ?> 
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="2">Totals</td>
+                                                            <td><?=number_format($t_principal, 2); ?></td>
+                                                            <td><?=number_format($t_interest, 2); ?></td>
+                                                            <td><?=number_format($t_fees, 2); ?></td>
+                                                            <td><?=number_format($t_penalty, 2); ?></td>
+                                                            <td><?=number_format(($t_principal + $t_interest + $t_fees + $t_penalty), 2); ?></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            <?php endif ?>
                                             <?php if(($loan_schedule->status != 3) &&  ($loan_schedule->status != 2)): ?>
                                                 <div class="form-group">
                                                     <div class="col-lg-12 text-center">

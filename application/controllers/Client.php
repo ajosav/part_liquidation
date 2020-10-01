@@ -100,8 +100,9 @@ class Client extends CI_Controller {
             "content" => "
                 <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
                 <p>Dear Team</p>
-                <p>Please note that {$client_fname} {$client_lname} has rejected the New repayment schedule. Reason:</p>
-                $reason 
+                <p>Please note that {$client_fname} {$client_lname} has rejected the New repayment schedule. </br>
+                Reason: {$rejection_state}
+                Details: {$reason} 
                 <p>Best Regards, <br>
                 The Renmoney Team </p>
                 <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
@@ -209,8 +210,10 @@ class Client extends CI_Controller {
         $client_phone = $this->input->post('client_phone');
         $loan_id = $this->input->post('loan_id');
 
-        $client_phone = "2348137512747";
-        $client_email = "ajosavboy@gmail.com";
+        // $client_phone = "2348137512747";
+        // $client_email = "ajosavboy@gmail.com";
+
+        $this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], ['status' => 4]);
 
         $this->send_otp($client_phone, $client_email, $client_fname);
        
@@ -267,6 +270,7 @@ class Client extends CI_Controller {
     }
 
     public function otp_validation() {
+        set_time_limit(0);
         if($this->input->method() != "post") {
             redirect(base_url().'Client/loan_schedule');
         }
@@ -298,6 +302,94 @@ class Client extends CI_Controller {
                 json_encode('Invalid OTP')
             );
         }
+
+        if(!$loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id])) {
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(400)
+            ->set_output(
+                json_encode('Error Completing your liquidation process')
+            );
+        }
+
+        $transaction_url = $this->mambu_base_url."api/loans/{$loan_id}/transactions";
+        
+        if($loan_schedule->paymentStatus == "unpaid") {
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(
+                json_encode('Your Part liquidation is queued, please proceed to payment')
+            );
+            
+        }
+
+        $repayment_data = [
+            "type" => "REPAYMENT",
+            "amount" => round($loan_schedule->outstandingBalance, 2),
+            "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+            "method" => $loan_schedule->transactionChannel,
+            "customInformation" => [
+                [
+                    "value" => $loan_schedule->transaction_method,
+                    "customFieldID" => "Repayment_Method_Transactions"
+                ]
+            ]
+        ];
+
+        $this->Base_model->dd($repayment_data);
+
+        $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
+
+        if(isset($response['returnCode'])) {
+            $data = [
+                "message" => "Failed to pay outstanding Balance",
+                "details" => json_encode($response['returnStatus']),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(400)
+            ->set_output(
+                json_encode('Your Part liquidation could not be completed')
+            );
+        }
+
+        $data = [
+            "message" => "Outstanding Repayments settled",
+            "details" => $response,
+            "schedule_id" => $schedule_id,
+            "loan_id" => $loan_id,
+            "date" => date('Y-m-d H:i:s')
+        ];
+        // $this->Base_model->create('liquidation_log', $data);
+
+        $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
+
+        $collect_repayment = [];
+        foreach($repayments as $repayment) {
+            $collect_repayment['repayments'][] = [
+                "encodedKey" => $repayment['encodedKey'],
+                "principalDue" => round($repayment['principalDue'], 2),
+                "penaltyDue" => round($repayment['principalDue'], 2),
+                "interestDue" => round($repayment['principalDue'], 2),
+                "feesDue" => round($repayment['principalDue'], 2),
+                "parentAccountKey" => $repayment['parentAccountKey'],
+            ];
+        }
+
+        $this->Base_model->dd($collect_repayment['repayments']);
+
+
+
+
+
+
+        
+        // $this->Base_model->
 
        
     }

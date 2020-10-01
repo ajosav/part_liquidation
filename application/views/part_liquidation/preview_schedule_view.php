@@ -73,6 +73,7 @@
                                                 </div>
                                                 
                                             </div>
+                                            <?php if(count($repayment_schedule) > 0): ?>    
                                             <table class="table table-striped dt-responsive nowrap">
                                                 <thead>
                                                     <tr>
@@ -88,9 +89,16 @@
                                                 </thead>
 
                                                 <tbody> 
-                                                    <?php if(count($repayment_schedule) > 0): ?>    
+                                                    
 
-                                                        <?php $sn = 1; foreach($repayment_schedule as $repayments): ?> 
+                                                        <?php 
+                                                            $sn = 1; 
+                                                            $t_principal = 0;
+                                                            $t_interest = 0;
+                                                            $t_fees = 0;
+                                                            $t_penalty = 0;
+
+                                                            foreach($repayment_schedule as $repayments): ?> 
                                                             <tr>
                                                                 <td><?= $sn++; ?></td>
                                                                 <td><?= $repayments['dueDate'];?></td>
@@ -99,12 +107,32 @@
                                                                 <td><?= number_format($repayments['feesDue'], 2); ?></td>
                                                                 <td><?= number_format($repayments['penaltyDue'], 2); ?></td>
                                                                 <td><?= number_format(($repayments['penaltyDue'] + $repayments['principalDue'] + $repayments['interestDue'] + $repayments['feesDue']), 2); ?></td>
+                                                            
+                                                                <?php 
+                                                                    $t_principal += $repayments['principalDue'];
+                                                                    $t_interest += $repayments['interestDue'];
+                                                                    $t_fees += $repayments['feesDue'];
+                                                                    $t_penalty += $repayments['penaltyDue'];
+                                                                
+                                                                ?>
                                                             </tr>
+
                                                         
                                                         <?php endforeach ?> 
-                                                    <?php endif ?>
+                                                   
                                                 </tbody>
-                                            </table>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2">Totals</td>
+                                                        <td><?=number_format($t_principal, 2); ?></td>
+                                                        <td><?=number_format($t_interest, 2); ?></td>
+                                                        <td><?=number_format($t_fees, 2); ?></td>
+                                                        <td><?=number_format($t_penalty, 2); ?></td>
+                                                        <td><?=number_format(($t_principal + $t_interest + $t_fees + $t_penalty), 2); ?></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table> 
+                                            <?php endif ?>
                                             <div class="form-group">
                                                 <?php
                                                     $today = date('Y-m-d H:i:s');

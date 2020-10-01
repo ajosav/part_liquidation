@@ -94,10 +94,16 @@
                                                 
                                             </div>
                                             <div class="form-group">
-                                                <div class="col-lg-6">
+                                                <div class="col-lg-3">
                                                     <label for="date_generated">Transaction Channel</label>
                                                     <select name="transaction_channel" id="channel" class="form-control">
                                                         <?= $transaction_channel ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <label for="trans_method">Transaction Method</label>
+                                                    <select name="transaction_method" id="trans_method" class="form-control">
+                                                        <?= $transaction_method ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-lg-3">
