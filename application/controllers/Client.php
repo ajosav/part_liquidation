@@ -81,7 +81,6 @@ class Client extends CI_Controller {
         $rejection_state = $this->input->post('rejection_state');
         $client_fname = $this->input->post('client_fname');
         $client_lname = $this->input->post('client_lname');
-        $client_mname = $this->input->post('client_mname');
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
         $loan_id = $this->input->post('loan_id');
@@ -101,7 +100,7 @@ class Client extends CI_Controller {
             "content" => "
                 <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
                 <p>Dear Team</p>
-                <p>Please note that {$client_fname} {$client_lname} {$client_mname} has rejected the New repayment schedule. Reason:</p>
+                <p>Please note that {$client_fname} {$client_lname} has rejected the New repayment schedule. Reason:</p>
                 $reason 
                 <p>Best Regards, <br>
                 The Renmoney Team </p>
@@ -205,7 +204,6 @@ class Client extends CI_Controller {
         $rejection_state = $this->input->post('rejection_state');
         $client_fname = $this->input->post('client_fname');
         $client_lname = $this->input->post('client_lname');
-        $client_mname = $this->input->post('client_mname');
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
         $loan_id = $this->input->post('loan_id');

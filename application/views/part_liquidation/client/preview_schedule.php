@@ -18,7 +18,6 @@
                                                     
                                                     <input type="hidden" name="client_fname" value="<?= $client_details['client']['firstName'] ?>">
                                                     <input type="hidden" name="client_lname" value="<?= $client_details['client']['lastName'] ?>">
-                                                    <input type="hidden" name="client_mname" value="<?= $client_details['client']['middleName'] ?>">
                                                     <input type="hidden" name="client_email" value="<?= $client_details['client']['emailAddress'] ?>">
                                                     <input type="hidden" name="client_phone" value="<?= $client_details['client']['mobilePhone1'] ?>">
                                                     <input type="hidden" name="accountHolderKey" id="accountHolderKey" value="<?= $loan_schedule->accountHolderKey?>">
@@ -118,7 +117,6 @@
                                                 <input type="hidden" name="loan_id" value="<?= $loan_schedule->loan_id ?>">
                                                 <input type="hidden" name="client_fname" value="<?= $client_details['client']['firstName'] ?>">
                                                 <input type="hidden" name="client_lname" value="<?= $client_details['client']['lastName'] ?>">
-                                                <input type="hidden" name="client_mname" value="<?= $client_details['client']['middleName'] ?>">
                                                 <input type="hidden" name="client_email" value="<?= $client_details['client']['emailAddress'] ?>">
                                                 <input type="hidden" name="client_phone" value="<?= $client_details['client']['mobilePhone1'] ?>">
                                                 <div class="col-lg-12">
