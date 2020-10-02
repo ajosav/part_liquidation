@@ -343,14 +343,14 @@ class Client extends CI_Controller {
             ->set_content_type('application/json')
             ->set_status_header(400)
             ->set_output(
-                json_encode('Your Part liquidation could not be completed')
+                json_encode($response['returnStatus'])
             );
         }
-        // $this->Base_model->dd($repayment_data);
+        // $this->Base_model->dd($response);
 
         $data = [
             "message" => "Outstanding Repayments settled",
-            "details" => $response,
+            "details" => json_encode($response),
             "schedule_id" => $schedule_id,
             "loan_id" => $loan_id,
             "date" => date('Y-m-d H:i:s')
@@ -372,7 +372,7 @@ class Client extends CI_Controller {
         }
 
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
-        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment));
+        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
 
         if(isset($response['returnCode'])) {
             $data = [
@@ -387,10 +387,9 @@ class Client extends CI_Controller {
             ->set_content_type('application/json')
             ->set_status_header(400)
             ->set_output(
-                json_encode($response)
+                json_encode($response['returnStatus'])
             );
         }
-
 
         return $this->output
         ->set_content_type('application/json')

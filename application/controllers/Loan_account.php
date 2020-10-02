@@ -56,7 +56,7 @@ class Loan_account extends CI_Controller {
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
         $loan_id = $mambuPostBack['OBJECT_ID'];
-        // $loan_id = 10911356;
+        // $loan_id = 30462881;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
         // $loan_id = 30462881;
