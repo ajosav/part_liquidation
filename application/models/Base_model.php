@@ -127,35 +127,45 @@ class Base_model extends CI_Model {
 
     public function call_mambu_api_patch($endpointURL, $arrayData) {
         $data = json_encode($arrayData);
-        $curl = curl_init();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $endpointURL,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 60,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_SSL_VERIFYPEER => false, //added 
-            CURLOPT_USERPWD => $this->username . ":" . $this->password,
-            CURLOPT_CUSTOMREQUEST => "PATCH",
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_HTTPHEADER => array(
-                "cache-control: no-cache",
-                "content-type: application/json"
-            ),
-        ));
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpointURL);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->mambu_username . ":" . $this->mambu_password);
+        //remove the next line during deployment
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
+        if ($this->debug) {
+            curl_setopt($ch, CURLOPT_VERBOSE, true);
 
-        curl_close($curl);
-
-        if ($err) {
-            echo "cURL Error #:" . $err;
-        } else {
-            return $response;
+            $verbose = fopen('php://temp', 'w+');
+            curl_setopt($ch, CURLOPT_STDERR, $verbose);
         }
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data))
+        );
+
+        $output = curl_exec($ch);
+        if ($this->debug) {
+            if ($output === FALSE) {
+                printf("cUrl error (#%d): %s<br>\n", curl_errno($ch), htmlspecialchars(curl_error($ch)));
+            }
+
+            rewind($verbose);
+            $verboseLog = stream_get_contents($verbose);
+
+            echo "Verbose information:\n<pre>", htmlspecialchars($verboseLog), "</pre>\n";
+        }
+
+        curl_close($ch);
+
+        return $output;
+        
     }
 
     public function get_repayments($loan_id) {

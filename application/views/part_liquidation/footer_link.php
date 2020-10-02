@@ -261,7 +261,7 @@
         $("form#otp_validation").submit(function(e) {
             e.preventDefault();
             var form = $('form#otp_validation').serialize();
-            $otp_error = $('#otp_error');
+            otp_error = $('#otp_error');
             $('.btn').button('loading')
             $.ajax({
                 url: base_url+"client/otp_validation",
@@ -273,18 +273,18 @@
                 data: form,
                 crossDomain: true,
                 success: function(data) {
-                    if(data.status == 'created') {
-                        alert(data.message);
-                    }
+                   alert(data);
+                   window.location.replace("https://www.renmoney.com")
                     // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if(XMLHttpRequest.status == 200) {
                         console.log(XMLHttpRequest)
                         alert(XMLHttpRequest.responseText);
+                        window.location.replace("https://www.renmoney.com")
                         // window.location.reload();
                     } else {
-                    otp_error.html(XMLHttpRequest.responseText);
+                        otp_error.html(XMLHttpRequest.responseText);
                         $('.btn').button('reset');
                     }
                 }

@@ -200,8 +200,8 @@ class Client extends CI_Controller {
         $client_phone = $this->input->post('client_phone');
         $loan_id = $this->input->post('loan_id');
 
-        // $client_phone = "2348137512747";
-        // $client_email = "ajosavboy@gmail.com";
+            // $client_phone = "2348137512747";
+            // $client_email = "ajosavboy@gmail.com";
 
         $this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], ['status' => 4]);
 
@@ -327,10 +327,9 @@ class Client extends CI_Controller {
             ]
         ];
 
-        $this->Base_model->dd($repayment_data);
-
+        
         $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
-
+        
         if(isset($response['returnCode'])) {
             $data = [
                 "message" => "Failed to pay outstanding Balance",
@@ -347,6 +346,7 @@ class Client extends CI_Controller {
                 json_encode('Your Part liquidation could not be completed')
             );
         }
+        // $this->Base_model->dd($repayment_data);
 
         $data = [
             "message" => "Outstanding Repayments settled",
@@ -355,7 +355,7 @@ class Client extends CI_Controller {
             "loan_id" => $loan_id,
             "date" => date('Y-m-d H:i:s')
         ];
-        // $this->Base_model->create('liquidation_log', $data);
+        $this->Base_model->create('liquidation_log', $data);
 
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
@@ -371,10 +371,33 @@ class Client extends CI_Controller {
             ];
         }
 
-        $this->Base_model->dd($collect_repayment['repayments']);
+        $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
+        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment));
+
+        if(isset($response['returnCode'])) {
+            $data = [
+                "message" => "Failed to liquidate account",
+                "details" => json_encode($response['returnStatus']),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(400)
+            ->set_output(
+                json_encode($response)
+            );
+        }
 
 
-
+        return $this->output
+        ->set_content_type('application/json')
+        ->set_status_header(200)
+        ->set_output(
+            json_encode("Loan account liquidation was successful")
+        );
 
 
 
@@ -399,7 +422,7 @@ class Client extends CI_Controller {
         <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
             <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
-            <p style="margin-top:0;margin-bottom:0;">This is your one time password'. $otp .' <br>
+            <p style="margin-top:0;margin-bottom:0;">This is your one time password '. $otp .' <br>
                 if you did not initiate this process, please contact hello@renmoney.com
             </p>
             <p style="margin-top:0;margin-bottom:0;">Thank you for choosing RenMoney MFB LTD. </p>

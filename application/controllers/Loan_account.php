@@ -365,8 +365,12 @@ class Loan_account extends CI_Controller {
         $schedule_id = $this->input->post('schedule_id');
         $liquidationAmount = number_format($this->input->post('liquidationAmount'));
         $endpointURL = $this->mambu_base_url . "api/clients/" . $client_key ."?fullDetails=true";
+
+        
         $response = $this->Base_model->call_mambu_api_get($endpointURL);
-			
+            
+        $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
+
         $client_details = json_decode($response, TRUE);
         
         $personal_email = $client_details['client']['emailAddress'];
@@ -378,21 +382,42 @@ class Loan_account extends CI_Controller {
         $link = base64_encode(json_encode(['schedule_id' => $schedule_id, "valid_till" => $valid_till, "loan_id" => $loan]));
         $link = base_url() . "client/loan_schedule/$link";
 
-        $content = '
-        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
-            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-            <p style="margin-top:0;margin-bottom:0;">Dear '.$client_name.', </p>
-            <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Part Liquidation Request<br>
-            Liquidation Amount: N'.$liquidationAmount.'<br>
-            Loan ID:'.$loan.'<br>
-            <a href='.$link.'>View Schedule</a> <br>
-            Click on the Link above to Accept or Reject.<br>
-            For any enquiries, contact hello@renmoney.com</p>
-            <p style="margin-top:0;margin-bottom:0;"><b>Thank you for choosing RenMoney MFB LTD.</b> </p>
-            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
-            <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
-        </div>
-        ';
+        $content = "";
+        if($loan_schedule->paymentStatus == "paid") {
+            $content = '
+                <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
+                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                    <p style="margin-top:0;margin-bottom:0;">Dear '.$client_name.', </p>
+                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Part Liquidation Request<br>
+                    Liquidation Amount: N'.$liquidationAmount.'<br>
+                    Loan ID:'.$loan.'<br>
+                    <a href='.$link.'>View Schedule</a> <br>
+                    Click on the Link above to Accept or Reject.<br>
+                    For any enquiries, contact hello@renmoney.com</p>
+                    <p style="margin-top:0;margin-bottom:0;"><b>Thank you for choosing RenMoney MFB LTD.</b> </p>
+                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+                    <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+                </div>
+            ';
+        } else {
+            $content = '
+                <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
+                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                    <p style="margin-top:0;margin-bottom:0;">Dear '.$client_name.', </p>
+                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Part Liquidation Request<br>
+                    Liquidation Amount: N'.$liquidationAmount.'<br>
+                    Loan ID:'.$loan.'<br>
+                    <a href='.$link.'>View Schedule</a> <br>
+                    Click on the Link above to Accept or Reject.<br>
+                    Please note that this link will expire after 24 hours. <br>
+                    For any enquiries, contact hello@renmoney.com</p>
+                    <p style="margin-top:0;margin-bottom:0;"><b>Thank you for choosing RenMoney MFB LTD.</b> </p>
+                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+                    <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+                </div>
+            ';
+        }
+        
         $email_body = [
             "recipient" => [$personal_email],
             "subject" => "Part-liquidation of your Loan Account",
