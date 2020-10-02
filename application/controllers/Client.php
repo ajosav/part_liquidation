@@ -41,7 +41,7 @@ class Client extends CI_Controller {
         $schedule_id = $link->schedule_id;
         $valid_till = $link->valid_till;
 
-        $valid_till = "2020-10-03";
+        // $valid_till = "2020-10-03";
 
         if(!$loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id])) {
             $this->load->view('part_liquidation/client/client_link_error');
