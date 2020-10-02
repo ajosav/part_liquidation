@@ -88,25 +88,23 @@ class Loan_account extends CI_Controller {
 
         $transaction_channel = $data['disbursementDetails']['transactionDetails']['transactionChannel'];
 
-        $trans_name = $transaction_channel['name'];
         $trans_id = $transaction_channel['id'];
         $gl_names = "";
         
-        if (!$gl_accounts = $this->Base_model->fetch_gl_accounts()) {
-			$gl_names = "
-				<option value='{$trans_id}' data-id='{$trans_id}' selected>{$trans_name}</option>
-			";
-
-		} else {
-			foreach($gl_accounts as $gls) {
-                if($gls['id'] != 'XXXXXXXXXXXX') {
+        $trans_chan = $this->Base_model->fetch_gl_accounts();
+        
+        foreach($trans_chan as $channels) {
+            $gls = $this->Base_model->filter_gl_accounts($channels);
+            if($gls) {
+                 if($gls['id'] != 'XXXXXXXXXXXX') {
                     $name = $gls['name'];
                     $id = $gls['id'];
                     $active = $gls['id'] == $trans_id ? 'selected' : '';
                     $gl_names .= "<option value='{$id}' data-id='{$id}' {$active}> {$name} </option>";
                 }
-				
-			}
+            }
+           
+            
         }
         
 
@@ -373,7 +371,7 @@ class Loan_account extends CI_Controller {
         
         $personal_email = $client_details['client']['emailAddress'];
         $client_name = $client_details['client']['firstName'];
-        $personal_email = "jadebayo@renmoney.com";
+        // $personal_email = "jadebayo@renmoney.com";
 
 
         $valid_till = date("Y-m-d H:i:s", strtotime("+24 hours"));

@@ -180,6 +180,17 @@ class Base_model extends CI_Model {
         return $gl_accounts;
     }
 
+    public function filter_gl_accounts($gl) {
+        $customFields = $gl['customFields'];
+        foreach($customFields as $fields) {
+            if($fields['id'] == "Repayment_Method_Transactions") {
+                return $gl;
+            }
+        }
+
+        return false;
+    }
+
     
 	/**
 	 * inserts multidimensional array of data to table
