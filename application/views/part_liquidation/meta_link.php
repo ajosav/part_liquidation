@@ -54,7 +54,14 @@
 		
 		
 	<!-- 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.jss"></script> -->
-		<script src="<?= base_url() ?>src/jquery.table2excel.js"></script>
+        <script src="<?= base_url() ?>src/jquery.table2excel.js"></script>
+        
+        <style>
+            .new_logo {
+                width: 220px;
+                height: 57px;
+            }
+        </style>
 	
     </head>
     <body>
@@ -67,9 +74,9 @@
 			<!-- login user session -->
                
                         <a href="#" class="admin-logo">
-                             <?php if(strpos($_SERVER["REQUEST_URI"], "Client/")):?>
+                             <?php if(strpos($_SERVER["REQUEST_URI"], "client/") || strpos($_SERVER["REQUEST_URI"], "Client/")):?>
               
-                                <img src="<?= base_url() ?>assets_dashboard/images/renmoney-log22.png" >
+                                <img src="<?= base_url() ?>assets_dashboard/images/renmoney_logo.jpg" class="new_logo" >
                          
                             <?php endif ?>
                           

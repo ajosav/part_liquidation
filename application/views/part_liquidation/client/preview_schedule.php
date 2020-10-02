@@ -1,6 +1,21 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
         <section class="main-content container">
+
+        <!--page header start-->
+    <div class="page-header">
+        <div class="row">
+            <div class="col-sm-6">
+                
+                <h3>Hello <?= $client_details['client']['firstName'] ?></h3>
+                <p>Please see below the new repayment schedule based on your Part Liquidation Request</p>
+            </div>
+            <div class="col-sm-6 text-right">
+                
+            </div>
+        </div>
+    </div>
+    <!--page header end-->
     
             <!--page header end-->
 				<div class="col-lg-12">

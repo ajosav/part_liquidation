@@ -37,19 +37,22 @@ class Client extends CI_Controller {
         $link = json_decode(base64_decode($url));
 
         
-        // $this->Base_model->dd($back_date);
         
         $schedule_id = $link->schedule_id;
         $valid_till = $link->valid_till;
-        
+
+        $valid_till = "2020-10-03";
+
         if(!$loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id])) {
             $this->load->view('part_liquidation/client/client_link_error');
             return false;
         }
         // $datetime = date('Y-m-d H:i:s',strtotime('1 hour', strtotime($today)));
         $back_date = date('Y-m-d H:i:s', strtotime("-24 hours", strtotime($this->today)));
-        $validity = date('Y-m-d H:i:s', strtotime("+24 hours", strtotime($loan_schedule->date_generated)));
-        if($back_date > $valid_till || $validity > $valid_till ) {
+        $link_date = date('Y-m-d H:i:s', strtotime("-24 hours", strtotime($valid_till)));
+        $validity = date('Y-m-d H:i:s', strtotime($loan_schedule->date_generated));
+        // if($back_date < $valid_till || $validity > $valid_till ) {
+        if(($back_date > $link_date) || ($link_date < $validity)) {
             $this->load->view('part_liquidation/client/client_link_error');
             return false;
         }
@@ -94,51 +97,69 @@ class Client extends CI_Controller {
             'status' => $status
         ];
 
+        $reject_state_prefix = $rejection_state == "refund" ? '' : "Apply as";
+
+        $team_mail_body = '
+        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                <p style="margin-top:0;margin-bottom:0;">Dear Team</p>
+                <p style="margin-top:0;margin-bottom:0;">Please note that '.$client_fname. ' '. $client_lname .' has rejected the New repayment schedule. </br>
+                Reason: '.$reject_state_prefix.' '.$rejection_state.'<br>
+                Details: '.$reason.'
+
+                <p style="margin-top:0;margin-bottom:0;">
+                <b>Best Regards, <br>
+                The Renmoney Team </b>
+                </p>
+
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+            <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+        </div>';
+
         $team_email_body = [
             "recipient" => $email,
             "subject" => "Rejected Repayment Schedule",
-            "content" => "
-                <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
-                <p>Dear Team</p>
-                <p>Please note that {$client_fname} {$client_lname} has rejected the New repayment schedule. </br>
-                Reason: {$rejection_state}
-                Details: {$reason} 
-                <p>Best Regards, <br>
-                The Renmoney Team </p>
-                <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
-            ",
+            "content" => $team_mail_body,
             "cc" => $cc,
             "category" => ['Part-liquidation']
         ];
 
+        $refund_mail_content ='
+        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
+                <p style="margin-top:0;margin-bottom:0;">You have declined the part-liquidation of your loan. <br>
+                Your bulk payment will be refunded within 24 working hours. <br>
+                For any enquiries, contact hello@renmoney.com</p>
+
+                <p style="margin-top:0;margin-bottom:0;"><b>Thank you for choosing RenMoney MFB LTD. </b></p>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+            <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+        </div>';
         $refund_email_body = [
             "recipient" => [$client_email],
             "subject" => "New Repayment Schedule Rejected",
-            "content" => "
-                <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
-                <p>Dear {$client_fname}</p>
-                <p>You have declined the part-liquidation of your loan. <br>
-                Your bulk payment will be refunded within 24 working hours. <br>
-                For any enquiries, contact hello@renmoney.com</p>
-                <p>Thank you for choosing RenMoney MFB LTD. </p>
-                <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
-            ",
+            "content" => $refund_mail_content,
             "cc" => $cc,
             "category" => ['Part-liquidation']
         ];
 
+        $repayment_mail_content = '
+        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+            <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
+            <p style="margin-top:0;margin-bottom:0;">You have declined the part-liquidation of your loan. <br>
+            Your bulk payment will be effected as repayments within 24 working hours. <br>
+            For any enquiries, contact hello@renmoney.com</p>
+            <p style="margin-top:0;margin-bottom:0;"> <b>Thank you for choosing RenMoney MFB LTD.</b> </p>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+            <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+        </div>  
+        ';
         $repayment_email_body = [
             "recipient" => [$client_email],
             "subject" => "New Repayment Schedule Rejected",
-            "content" => "
-                <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
-                <p>Dear {$client_fname}</p>
-                <p>You have declined the part-liquidation of your loan. <br>
-                Your bulk payment will be effected as repayments within 24 working hours. <br>
-                For any enquiries, contact hello@renmoney.com</p>
-                <p>Thank you for choosing RenMoney MFB LTD. </p>
-                <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
-            ",
+            "content" => $repayment_mail_content,
             "cc" => $cc,
             "category" => ['Part-liquidation']
         ];
@@ -166,37 +187,6 @@ class Client extends CI_Controller {
         ->set_output(
             json_encode('Back process could not be declined for some reason')
         );
-    }
-
-
-    public function send_schedule_to_customer() {
-        $client_key = $this->input->post('accountHolderKey');
-        $loan = $this->input->post('loan_id');
-        $schedule_id = $this->input->post('schedule_id');
-        $liquidationAmount = number_format($this->input->post('liquidationAmount'));
-        $endpointURL = $this->mambu_base_url . "api/clients/" . $client_key ."?fullDetails=true";
-        $response = $this->Base_model->call_mambu_api_get($endpointURL);
-			
-        $client_details = json_decode($response, TRUE);
-        
-        $personal_email = $client_details['client']['emailAddress'];
-        $client_name = $client_details['client']['firstName'];
-        $link = base_url() . "/view_schedule";
-
-        $this->Base_model->notifyMail(["{$personal_email}"], "Part-liquidation of your Loan Account", "
-            <p> <img src = 'https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
-            <p>Dear {$client_name}, </p>
-            <p>Please find attached the New repayment schedule based on your recent bulk payment N{$liquidationAmount} for your loan with ID {$loan} <br>
-            {$link} <br>
-            Click on the Link above to Accept or Reject.
-            For any enquiries, contact hello@renmoney.com</p>
-            <p>Thank you for choosing RenMoney MFB LTD. 
-            <br> <p>  <img src = 'https://www.renmoneyng.com/images/uploads/email-template-bottom.png ' alt = '' /> </p>
-        ");
-        
-        $this->load->view('part_liquidation/meta_link');
-        $this->load->view('part_liquidation/email_successfully_sent'); 
-        $this->load->view('part_liquidation/footer_link');
     }
 
     public function accept_schedule() {
@@ -405,18 +395,22 @@ class Client extends CI_Controller {
                 "date_created" => date('Y-m-d H:i:s'),
             ]
         );
+        $mail_content = '
+        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+            <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
+            <p style="margin-top:0;margin-bottom:0;">This is your one time password'. $otp .' <br>
+                if you did not initiate this process, please contact hello@renmoney.com
+            </p>
+            <p style="margin-top:0;margin-bottom:0;">Thank you for choosing RenMoney MFB LTD. </p>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+            <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+        </div>   
+        ';
         $otp_mail_body = [
             "recipient" => [$client_email],
             "subject" => "Renmoney MFB LTD. One Time Password",
-            "content" => "
-                <p> <img src ='https://www.renmoneyng.com/images/uploads/email-template-top.png' alt = '' /> </p>
-                <p>Dear {$client_fname}</p>
-                <p>This is your one time password {$otp} <br>
-                    if you did not initiate this process, please contact hello@renmoney.com
-                </p>
-                <p>Thank you for choosing RenMoney MFB LTD. </p>
-                <p>  <img src ='https://www.renmoneyng.com/images/uploads/email-template-bottom.png' alt = '' /> </p>
-            ",
+            "content" => $mail_content,
             "cc" => [],
             "category" => ['Part-liquidation']
         ];
