@@ -49,14 +49,14 @@ class Loan_account extends CI_Controller {
 	* 
 	*/
     public function start() {
-		$signedRequest = $this->input->post('signed_request'); // Script to get cleint data from Mambu
-        // $signedRequest= "e6d8b59f768c956c8b5b0df34f78c7b7df7e237d60f0ef52bb1c3478c4102880.eyJET01BSU4iOiJyZW5tb25leS5zYW5kYm94Lm1hbWJ1LmNvbSIsIk9CSkVDVF9JRCI6IjEwOTExMzU2IiwiQUxHT1JJVEhNIjoiaG1hY1NIQTI1NiIsIlRFTkFOVF9JRCI6InJlbm1vbmV5IiwiVVNFUl9LRVkiOiI4YTlmODdkMTc0OTE1YjYxMDE3NDkxN2MxZmE5MDAxMiJ9";
+		// $signedRequest = $this->input->post('signed_request'); // Script to get cleint data from Mambu
+        $signedRequest= "e6d8b59f768c956c8b5b0df34f78c7b7df7e237d60f0ef52bb1c3478c4102880.eyJET01BSU4iOiJyZW5tb25leS5zYW5kYm94Lm1hbWJ1LmNvbSIsIk9CSkVDVF9JRCI6IjEwOTExMzU2IiwiQUxHT1JJVEhNIjoiaG1hY1NIQTI1NiIsIlRFTkFOVF9JRCI6InJlbm1vbmV5IiwiVVNFUl9LRVkiOiI4YTlmODdkMTc0OTE1YjYxMDE3NDkxN2MxZmE5MDAxMiJ9";
         
         $signedRequestParts = explode('.', $signedRequest);
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
         $loan_id = $mambuPostBack['OBJECT_ID'];
-        // $loan_id = 30462881;
+        $loan_id = 30462881;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
         // $loan_id = 30462881;
@@ -93,18 +93,21 @@ class Loan_account extends CI_Controller {
         
         $trans_chan = $this->Base_model->fetch_gl_accounts();
         
-        foreach($trans_chan as $channels) {
-            $gls = $this->Base_model->filter_gl_accounts($channels);
-            if($gls) {
-                 if($gls['id'] != 'XXXXXXXXXXXX') {
-                    $name = $gls['name'];
-                    $id = $gls['id'];
-                    $active = $gls['id'] == $trans_id ? 'selected' : '';
-                    $gl_names .= "<option value='{$id}' data-id='{$id}' {$active}> {$name} </option>";
+        foreach($trans_chan as $gls) {
+            // $gls = $this->Base_model->filter_gl_accounts($channels);
+            if($gls['id'] != 'XXXXXXXXXXXX') {
+                $customFields = $gls['customFields'];
+                $data_id = "";
+                foreach($customFields as $fields) {
+                    if($fields['id'] == "Repayment_Method_Transactions") {
+                        $data_id = $fields['id'];
+                    }
                 }
+                $name = $gls['name'];
+                $id = $gls['id'];
+                $active = $gls['id'] == $trans_id ? 'selected' : '';
+                $gl_names .= "<option value='{$id}' data-id='{$data_id}' {$active}> {$name} </option>";
             }
-           
-            
         }
         
 
@@ -229,30 +232,42 @@ class Loan_account extends CI_Controller {
         $transction_channel = $this->input->post('transaction_channel');
         $transaction_method = $this->input->post('transaction_method');
 
-        $principal_remainder = $liquidation_amount - ($interest_overdue) - ($penalty_due) - ($interest_accrued + $fees_due) - ($principal_due);
-        $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($interest_accrued + $fees_due) + ($principal_due);
+        // $principal_remainder = $liquidation_amount - ($interest_overdue) - ($penalty_due) - ($interest_accrued + $fees_due) - ($principal_due);
+        // $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($interest_accrued + $fees_due) + ($principal_due);
+        $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($fees_due) + ($principal_due);
 
         // pass the outstanding balance to repayments endpoint to cover for debts
 
         // create a new repayment schedule
         $repayments = $this->get_max_available_tenor($loan_id);
-        if($principal_remainder > 0) {
-            $new_principal_bal =  abs(ceil($principal_remainder - ($principal_balance - $principal_due)));
+        if($outstanding_balance < $liquidation_amount) {
+            $new_principal_bal =  abs(($liquidation_amount - $outstanding_balance) - $principal_balance);
             $spread_principal = ($new_principal_bal / $tenor);
             $new_schedule = [];
             if($tenor == $max_tenor) {
                 foreach($repayments as $repayment) {
                     $repayment->principalDue = $spread_principal;
+                    $repayment->feesDue = ($repayment->feesDue - $repayment->feesPaid);
+                    $repayment->penaltyDue = ($repayment->penaltyDue - $repayment->penaltyPaid);
+                    $repayment->interestDue = ($repayment->interestDue - $repayment->interestPaid);
                     $new_schedule[] = $repayment;
                 }
             } else {
+                if(isset($_POST['warning'])) {
+                    return $this->output
+                    ->set_content_type('application/json')
+                    ->set_status_header(200)
+                    ->set_output(
+                        json_encode(["status" => "warning", "message" => "Schedule Successfully Re-calculated"])
+                    );
+                }
                 $interest  = 0;
                 $fees_due = 0;
                 $penalty_due = 0;
                 foreach($repayments as $repayment) {
-                    $fees_due += $repayment->feesDue;
-                    $interest += $repayment->interestDue;
-                    $penalty_due += $repayment->penaltyDue;
+                    $fees_due += ($repayment->feesDue - $repayment->feesPaid);
+                    $interest += ($repayment->interestDue - $repayment->interestPaid);
+                    $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
                    
                 }
                 $interest = $interest / $tenor;
@@ -288,7 +303,7 @@ class Loan_account extends CI_Controller {
                 "transactionChannel" => $transction_channel,
                 "transaction_method" => $transaction_method,
                 "tenure" => $tenor,
-                "principalBalance" => abs(ceil($principal_remainder - ($principal_balance - $principal_due))),
+                "principalBalance" => $new_principal_bal,
                 "date_generated" => date('Y-m-d H:i:s'),
                 "outstandingBalance" => $outstanding_balance
             ];
@@ -375,7 +390,7 @@ class Loan_account extends CI_Controller {
         
         $personal_email = $client_details['client']['emailAddress'];
         $client_name = $client_details['client']['firstName'];
-        // $personal_email = "jadebayo@renmoney.com";
+        $personal_email = "jadebayo@renmoney.com";
 
 
         $valid_till = date("Y-m-d H:i:s", strtotime("+24 hours"));
@@ -388,8 +403,8 @@ class Loan_account extends CI_Controller {
                 <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
                     <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
                     <p style="margin-top:0;margin-bottom:0;">Dear '.$client_name.', </p>
-                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Part Liquidation Request<br>
-                    Liquidation Amount: N'.$liquidationAmount.'<br>
+                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Bulk Payment Request<br>
+                    Bulk Amount: N'.$liquidationAmount.'<br>
                     Loan ID:'.$loan.'<br>
                     <a href='.$link.'>View Schedule</a> <br>
                     Click on the Link above to Accept or Reject.<br>
@@ -404,8 +419,8 @@ class Loan_account extends CI_Controller {
                 <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
                     <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
                     <p style="margin-top:0;margin-bottom:0;">Dear '.$client_name.', </p>
-                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Part Liquidation Request<br>
-                    Liquidation Amount: N'.$liquidationAmount.'<br>
+                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Bullk Payment Request<br>
+                    Bulk Amount: N'.$liquidationAmount.'<br>
                     Loan ID:'.$loan.'<br>
                     <a href='.$link.'>View Schedule</a> <br>
                     Click on the Link above to Accept or Reject.<br>

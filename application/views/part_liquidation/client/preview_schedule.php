@@ -40,8 +40,8 @@
                                                     <input type="text"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $loan_schedule->loan_id ?>" title="Client Loan ID" readonly>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label for="date_generated">Liquidation Amount</label>
-                                                    <input type="text"  placeholder="Liquidation Amount" name="liquidationAmount" class="form-control" value="<?= number_format($loan_schedule->liquidationAmount, 2) ?>" title="Liquidation Amount" readonly>
+                                                    <label for="date_generated">Bulk Amount (&#8358;)</label>
+                                                    <input type="text"  placeholder="Bulk Amount" name="liquidationAmount" class="form-control" value="<?= number_format($loan_schedule->liquidationAmount, 2) ?>" title="Liquidation Amount" readonly>
                                                 </div>
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Date Generated</label>

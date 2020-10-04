@@ -20,7 +20,7 @@
                                                     <input type="email"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $loan_schedule->loan_id ?>" title="Client Loan ID" readonly>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <label for="date_generated">Liquidation Amount</label>
+                                                    <label for="date_generated">Liquidation Amount (&#8358;)</label>
                                                     <input type="text"  placeholder="Liquidation Amount" name="liquidationAmount" class="form-control" value="<?= $loan_schedule->liquidationAmount ?>" title="Liquidation Amount" readonly>
                                                 </div>
                                             </div>

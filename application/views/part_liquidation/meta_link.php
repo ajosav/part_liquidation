@@ -46,7 +46,6 @@
 		<!-- dev URL rawgit.com--> 
 		<script src="https://cdn.rawgit.com/unconditional/jquery-table2excel/master/src/jquery.table2excel.js"></script>
 	<!--	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>--> 
-
 	<!-- !!! use this URL for production:
 		<script src="https://cdn.rawgit.com/unconditional/jquery-table2excel/master/src/jquery.table2excel.js"></script>
 		-->

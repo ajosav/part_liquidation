@@ -6,10 +6,14 @@ class Client extends CI_Controller {
 
     public $mambu_base_url;
     private $today;
+    private $team_mail;
+    private $cc;
 	public function __construct() {
 		
         parent::__construct();
         
+        $this->team_mail = ["EObukohwo@renmoney.com"];
+        $this->cc = ["jadebayo@renmoney.com"];
 		$this->config->load('renmoney');
 		$this->load->helper(array('form', 'url'));
 
@@ -18,6 +22,7 @@ class Client extends CI_Controller {
 
         $this->load->model('Base_model'); 
         
+
         
         $this->mambu_base_url = $this->config->item('rnm_mambu_base_url');
         
@@ -87,9 +92,6 @@ class Client extends CI_Controller {
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
         $loan_id = $this->input->post('loan_id');
-
-        $email = ["EObukohwo@renmoney.com"];
-        $cc = [];
         
         $status = 3;
 
@@ -117,10 +119,10 @@ class Client extends CI_Controller {
         </div>';
 
         $team_email_body = [
-            "recipient" => $email,
+            "recipient" => $this->team_mail,
             "subject" => "Rejected Repayment Schedule",
             "content" => $team_mail_body,
-            "cc" => $cc,
+            "cc" => $this->cc,
             "category" => ['Part-liquidation']
         ];
 
@@ -128,7 +130,7 @@ class Client extends CI_Controller {
         <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
                 <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
-                <p style="margin-top:0;margin-bottom:0;">You have declined the part-liquidation of your loan. <br>
+                <p style="margin-top:0;margin-bottom:0;">You have declined the new schedule of your loan. <br>
                 Your bulk payment will be refunded within 24 working hours. <br>
                 For any enquiries, contact hello@renmoney.com</p>
 
@@ -140,7 +142,7 @@ class Client extends CI_Controller {
             "recipient" => [$client_email],
             "subject" => "New Repayment Schedule Rejected",
             "content" => $refund_mail_content,
-            "cc" => $cc,
+            "cc" => $this->cc,
             "category" => ['Part-liquidation']
         ];
 
@@ -148,7 +150,7 @@ class Client extends CI_Controller {
         <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
             <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
-            <p style="margin-top:0;margin-bottom:0;">You have declined the part-liquidation of your loan. <br>
+            <p style="margin-top:0;margin-bottom:0;">You have declined the new schedule of your loan. <br>
             Your bulk payment will be effected as repayments within 24 working hours. <br>
             For any enquiries, contact hello@renmoney.com</p>
             <p style="margin-top:0;margin-bottom:0;"> <b>Thank you for choosing RenMoney MFB LTD.</b> </p>
@@ -160,7 +162,7 @@ class Client extends CI_Controller {
             "recipient" => [$client_email],
             "subject" => "New Repayment Schedule Rejected",
             "content" => $repayment_mail_content,
-            "cc" => $cc,
+            "cc" => $this->cc,
             "category" => ['Part-liquidation']
         ];
 
@@ -177,7 +179,7 @@ class Client extends CI_Controller {
                 ->set_content_type('application/json')
                 ->set_status_header(200)
                 ->set_output(
-                    json_encode('Liquidation Schedule Successfully declined')
+                    json_encode('Liquidation Schedule Successfully Declined')
                 );
             }
             
@@ -185,7 +187,7 @@ class Client extends CI_Controller {
         ->set_content_type('application/json')
         ->set_status_header(400)
         ->set_output(
-            json_encode('Back process could not be declined for some reason')
+            json_encode('Schedule could not be declined for some reason')
         );
     }
 
@@ -305,58 +307,101 @@ class Client extends CI_Controller {
         $transaction_url = $this->mambu_base_url."api/loans/{$loan_id}/transactions";
         
         if($loan_schedule->paymentStatus == "unpaid") {
-            return $this->output
-            ->set_content_type('application/json')
-            ->set_status_header(200)
-            ->set_output(
-                json_encode('Your Part liquidation is queued, please proceed to payment')
-            );
-            
+            $this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], ['status' => 5]);
+            $team_mail_body = '
+                <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                        <p style="margin-top:0;margin-bottom:0;">Dear Team</p>
+                        <p style="margin-top:0;margin-bottom:0;"Please note that'. $client_fname . ' '. $client_lname .' with loanID ' . $loan_id.' has accepted the new repayment schedule for their Part Liquidation request <p>
+                        
+                        <p style="margin-top:0;margin-bottom:0;>Please follow up with client\'s payment and notify Operations team to Effect the New schedule as this is only valid for 24 hours </p>
+
+                        <p style="margin-top:0;margin-bottom:0;">
+                        <b>Best Regards, <br>
+                        The Renmoney Team </b>
+                        </p>
+
+                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+                    <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+                </div>';
+
+                $team_email_body = [
+                    "recipient" => $this->team_mail,
+                    "subject" => "Accepted Repayment Schedule",
+                    "content" => $team_mail_body,
+                    "cc" => $this->cc,
+                    "category" => ['Part-liquidation']
+                ];
+
+                $this->Base_model->notifyMail($team_email_body);
+                    return $this->output
+                    ->set_content_type('application/json')
+                    ->set_status_header(200)
+                    ->set_output(
+                        json_encode('Your Part liquidation is queued, please proceed to payment')
+                    );
+                    
         }
-
-        $repayment_data = [
-            "type" => "REPAYMENT",
-            "amount" => round($loan_schedule->outstandingBalance, 2),
-            "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
-            "method" => $loan_schedule->transactionChannel,
-            "customInformation" => [
-                [
-                    "value" => $loan_schedule->transaction_method,
-                    "customFieldID" => "Repayment_Method_Transactions"
-                ]
-            ]
-        ];
-
         
-        $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
-        
-        if(isset($response['returnCode'])) {
+        if($loan_schedule->outstandingBalance > 0) {
+            $repayment_data = '';
+            if($loan_schedule->transaction_method != '') {
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->outstandingBalance, 2),
+                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+                    "method" => $loan_schedule->transactionChannel,
+                    "customInformation" => [
+                        [
+                            "value" => $loan_schedule->transaction_method,
+                            "customFieldID" => "Repayment_Method_Transactions"
+                        ]
+                    ]
+                ];
+            } else {
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->outstandingBalance, 2),
+                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
+                ];
+            }
+            
+            $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
+            
+            if(isset($response['returnCode'])) {
+                $data = [
+                    "message" => "Failed to pay outstanding Balance",
+                    "details" => json_encode($response['returnStatus']),
+                    "schedule_id" => $schedule_id,
+                    "loan_id" => $loan_id,
+                    "date" => date('Y-m-d H:i:s')
+                ];
+                $this->Base_model->create('liquidation_log', $data);
+                return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(
+                    json_encode($response['returnStatus'])
+                );
+            }
+
             $data = [
-                "message" => "Failed to pay outstanding Balance",
-                "details" => json_encode($response['returnStatus']),
+                "message" => "Outstanding Repayments settled",
+                "details" => json_encode($response),
                 "schedule_id" => $schedule_id,
                 "loan_id" => $loan_id,
                 "date" => date('Y-m-d H:i:s')
             ];
             $this->Base_model->create('liquidation_log', $data);
-            return $this->output
-            ->set_content_type('application/json')
-            ->set_status_header(400)
-            ->set_output(
-                json_encode($response['returnStatus'])
-            );
+
         }
-        // $this->Base_model->dd($response);
 
-        $data = [
-            "message" => "Outstanding Repayments settled",
-            "details" => json_encode($response),
-            "schedule_id" => $schedule_id,
-            "loan_id" => $loan_id,
-            "date" => date('Y-m-d H:i:s')
-        ];
-        $this->Base_model->create('liquidation_log', $data);
+        
+        $loan_repayments = json_decode($this->Base_model->get_repayments($loan_id), TRUE);
+        // $outstanding_repayments = $this->get_outstanding_repayments($loan_repayments);
 
+        // $new_loan_tenor = $this->Base_model->reduce_loan_tenure($outstanding_repayments, $loan_schedule->tenure);
+        
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
         $collect_repayment = [];
@@ -364,15 +409,25 @@ class Client extends CI_Controller {
             $collect_repayment['repayments'][] = [
                 "encodedKey" => $repayment['encodedKey'],
                 "principalDue" => round($repayment['principalDue'], 2),
-                "penaltyDue" => round($repayment['principalDue'], 2),
-                "interestDue" => round($repayment['principalDue'], 2),
-                "feesDue" => round($repayment['principalDue'], 2),
+                "penaltyDue" => round($repayment['penaltyDue'], 2),
+                "interestDue" => round($repayment['interestDue'], 2),
+                "feesDue" => round($repayment['fessDue'], 2),
                 "parentAccountKey" => $repayment['parentAccountKey'],
             ];
         }
 
+        // return $this->output
+        // ->set_content_type('application/json')
+        // ->set_status_header(400)
+        // ->set_output(
+        //     json_encode($collect_repayment)
+        // );
+
+
+
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
         $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
+
 
         if(isset($response['returnCode'])) {
             $data = [
@@ -467,6 +522,16 @@ class Client extends CI_Controller {
         
         // return $mask_number;
     }
-	
+    
+    private function get_outstanding_repayments($repayments) {
+        $outstanding_repayments = [];
+        foreach($repayments as $repayment) {
+            if((string) $repayment['state'] != "PAID") {
+                $outstanding_repayments[] = $repayment;
+            }
+        }
+
+        return $outstanding_repayments;
+    }
 
 }

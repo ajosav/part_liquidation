@@ -100,7 +100,7 @@
                                                         <?= $transaction_channel ?>
                                                     </select>
                                                 </div>
-                                                <div class="col-lg-3">
+                                                <div class="col-lg-3" id="trans_method_div">
                                                     <label for="trans_method">Transaction Method</label>
                                                     <select name="transaction_method" id="trans_method" class="form-control">
                                                         <?= $transaction_method ?>

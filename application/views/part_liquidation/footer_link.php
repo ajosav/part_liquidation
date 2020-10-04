@@ -40,11 +40,17 @@
         <script src="<?= base_url() ?>assets_dashboard/plugins/datatables/dataTables.responsive.min.js"></script>
         <script src="<?= base_url() ?>assets_dashboard/plugins/toast/jquery.toast.min.js"></script>
         <script src="<?//= base_url() ?>assets_dashboard/js/dashboard-alpha.js"></script>
-		 <script src="<?= base_url() ?>assets_dashboard/js/e-commerce-dashboard-custom.js"></script> 
+        <script src="<?= base_url() ?>assets_dashboard/js/e-commerce-dashboard-custom.js"></script> 
+        <script src="<?= base_url() ?>assets_dashboard/js/swal2.js"></script> 
+         
+        <script src="sweetalert2.all.min.js"></script>
+        <!-- Optional: include a polyfill for ES6 Promises for IE11 -->
+        <script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
     
 
 	
 	 <script>
+
             $(document).ready(function () {
                 $('.i-checks').iCheck({
                     checkboxClass: 'icheckbox_square-blue',
@@ -109,27 +115,10 @@
                 }
             });
 			
-
-					
-    
-		
-      
-	
-		</script>
-		
-			
-		<script>
-		 $(document).ready(function () {
+            $(document).ready(function () {
                 $('#datatable').dataTable();
-            });
-		</script>
-		<script>
-		 $(document).ready(function () {
                 $('#data1').dataTable();
-            });
-		</script>
-		<script>
-		 $(document).ready(function () {
+            
                 $('#table3').dataTable();
             });
 		</script>
@@ -167,8 +156,16 @@
                 return false;
             }
             var form = $('form#recalculate').serialize();
+            recalculateSchedule(form)
+        });
 
+        function recalculateSchedule(form, warning = false) {
             $('.btn').button('loading')
+            if(!warning) {
+                var form_data = form + '&warning=true';
+            } else {
+                var form_data = form;
+            }
             $.ajax({
                 url: base_url+"Loan_account/recalculate_schedule",
                 type: "post",
@@ -176,23 +173,34 @@
                     "accept": "application/json",
                     "Access-Control-Allow-Origin":"*"
                 },
-                data: form,
+                data: form_data,
                 crossDomain: true,
                 success: function(data) {
-                    console.log(data)
                     if(data.status == 'created') {
-
                         alert(data.message);
+                        location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
+                    } else if (data.status == 'warning') {
+                        $('.btn').button('reset');
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "DTI will be increased for client!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Proceed !'
+                            }).then((result) => {
+                            if (result.isConfirmed) {
+                                recalculateSchedule(form, true)
+                            }
+                        })
                     }
-                    location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status == 200) {
-                    console.log(XMLHttpRequest)
                     alert(XMLHttpRequest.responseText);
                     // window.location.reload();
                 } else {
-                    console.log("Error:", XMLHttpRequest)
                     alert(XMLHttpRequest.responseText);
                     $('.btn').button('reset');
                 }
@@ -200,7 +208,7 @@
             }).done(function() {
                 $('.btn').button('reset');
             });
-        });
+        }
 
         $('button#reject_liquidation').click(function(e) {
             e.preventDefault();
@@ -247,7 +255,8 @@
             if($(this).val() == 'new') {
                 $("input[name='repayment_tenor']").prop('readonly', false)
             } else {
-                $("input[name='repayment_tenor']").prop('readonly', true)
+                $("input[name='repayment_tenor']").prop('readonly', true);
+                $("input[name='repayment_tenor']").val($('input[name="max_tenor"]').val())
             }
         })
         $("input[name='tenure_type']").each(function() {
@@ -332,6 +341,23 @@
             });
                 
         })
+
+        $("#channel").load(function() {
+            hideTransMethod($(this));
+        })
+        $("#channel").change(function() {
+            hideTransMethod($(this))
+        });
+
+        function hideTransMethod(element) {
+            if(element.find(':selected').data('id') == '') {
+                $("#trans_method").prop('disabled', true);
+                $("#trans_method_div").hide();
+            } else {
+                $("#trans_method").prop('disabled', false);
+                $("#trans_method_div").show();
+            }
+        }
     });
 </script>
 <!-- Mirrored from bootstraplovers.com/templates/float-admin-v1.1/light-version/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Apr 2017 15:23:24 GMT -->
