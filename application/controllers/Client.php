@@ -102,14 +102,14 @@ class Client extends CI_Controller {
         $reject_state_prefix = $rejection_state == "refund" ? '' : "Apply as";
 
         $team_mail_body = '
-        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+        <div style="font-family: verdana, Trebuchet ms, arial;">
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-                <p style="margin-top:0;margin-bottom:0;">Dear Team</p>
-                <p style="margin-top:0;margin-bottom:0;">Please note that '.$client_fname. ' '. $client_lname .' has rejected the New repayment schedule. </br>
+                <p>Dear Team</p>
+                <p>Please note that '.$client_fname. ' '. $client_lname .' has rejected the New repayment schedule. </br>
                 Reason: '.$reject_state_prefix.' '.$rejection_state.'<br>
                 Details: '.$reason.'
 
-                <p style="margin-top:0;margin-bottom:0;">
+                <p>
                 <b>Best Regards, <br>
                 The Renmoney Team </b>
                 </p>
@@ -127,14 +127,14 @@ class Client extends CI_Controller {
         ];
 
         $refund_mail_content ='
-        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+        <div style="font-family: verdana, Trebuchet ms, arial;">
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-                <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
-                <p style="margin-top:0;margin-bottom:0;">You have declined the new schedule of your loan. <br>
+                <p>Dear '.$client_fname.'</p>
+                <p>You have declined the new schedule of your loan. <br>
                 Your bulk payment will be refunded within 24 working hours. <br>
                 For any enquiries, contact hello@renmoney.com</p>
 
-                <p style="margin-top:0;margin-bottom:0;"><b>Thank you for choosing RenMoney MFB LTD. </b></p>
+                <p><b>Thank you for choosing RenMoney MFB LTD. </b></p>
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
             <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
         </div>';
@@ -147,13 +147,13 @@ class Client extends CI_Controller {
         ];
 
         $repayment_mail_content = '
-        <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+        <div style="font-family: verdana, Trebuchet ms, arial;">
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-            <p style="margin-top:0;margin-bottom:0;">Dear '.$client_fname.'</p>
-            <p style="margin-top:0;margin-bottom:0;">You have declined the new schedule of your loan. <br>
+            <p>Dear '.$client_fname.'</p>
+            <p>You have declined the new schedule of your loan. <br>
             Your bulk payment will be effected as repayments within 24 working hours. <br>
             For any enquiries, contact hello@renmoney.com</p>
-            <p style="margin-top:0;margin-bottom:0;"> <b>Thank you for choosing RenMoney MFB LTD.</b> </p>
+            <p> <b>Thank you for choosing RenMoney MFB LTD.</b> </p>
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
             <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
         </div>  
@@ -311,12 +311,12 @@ class Client extends CI_Controller {
             $team_mail_body = '
                 <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
                     <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-                        <p style="margin-top:0;margin-bottom:0;">Dear Team</p>
-                        <p style="margin-top:0;margin-bottom:0;"Please note that'. $client_fname . ' '. $client_lname .' with loanID ' . $loan_id.' has accepted the new repayment schedule for their Part Liquidation request <p>
+                        <p>Hello Team, </p>
+                        <p>Please note that '. $client_fname . ' '. $client_lname .' with loanID ' . $loan_id.' has accepted the new repayment schedule for their Part Liquidation request </p>
                         
-                        <p style="margin-top:0;margin-bottom:0;>Please follow up with client\'s payment and notify Operations team to Effect the New schedule as this is only valid for 24 hours </p>
+                        <p>Please follow up with client\'s payment and notify Operations team to Effect the New schedule as this is only valid for 24 hours </p>
 
-                        <p style="margin-top:0;margin-bottom:0;">
+                        <p>
                         <b>Best Regards, <br>
                         The Renmoney Team </b>
                         </p>
