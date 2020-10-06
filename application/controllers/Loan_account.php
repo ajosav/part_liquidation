@@ -246,6 +246,7 @@ class Loan_account extends CI_Controller {
             $new_principal_bal =  abs($reduced_principal - $principal_balance);
             // $spread_principal = ($new_principal_bal / $tenor);
             $new_schedule = [];
+            $first_interest = $interest_accrued != 0 ? $interest_accrued : 0;
             $rate = $interest_rate;  $new_principal_bal; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             // $rate = 8.14; $new_tenure = 11; $new_principal_bal = 250000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             
@@ -282,7 +283,7 @@ class Loan_account extends CI_Controller {
                         $new_schedule[] = [
                             "schedule_id" => $schedule_id,
                             "encodedKey" => $repayment->encodedKey,
-                            "interestDue" => 0,
+                            "interestDue" => $first_interest,
                             "principalDue" => 0,
                             "dueDate" => $repayment->dueDate,
                             "penaltyDue" => $penalty_due,
