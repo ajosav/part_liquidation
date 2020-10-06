@@ -49,8 +49,8 @@ class Loan_account extends CI_Controller {
 	* 
 	*/
     public function start() {
-		$signedRequest = $this->input->post('signed_request'); // Script to get cleint data from Mambu
-        // $signedRequest= "e6d8b59f768c956c8b5b0df34f78c7b7df7e237d60f0ef52bb1c3478c4102880.eyJET01BSU4iOiJyZW5tb25leS5zYW5kYm94Lm1hbWJ1LmNvbSIsIk9CSkVDVF9JRCI6IjEwOTExMzU2IiwiQUxHT1JJVEhNIjoiaG1hY1NIQTI1NiIsIlRFTkFOVF9JRCI6InJlbm1vbmV5IiwiVVNFUl9LRVkiOiI4YTlmODdkMTc0OTE1YjYxMDE3NDkxN2MxZmE5MDAxMiJ9";
+		// $signedRequest = $this->input->post('signed_request'); // Script to get cleint data from Mambu
+        $signedRequest= "e6d8b59f768c956c8b5b0df34f78c7b7df7e237d60f0ef52bb1c3478c4102880.eyJET01BSU4iOiJyZW5tb25leS5zYW5kYm94Lm1hbWJ1LmNvbSIsIk9CSkVDVF9JRCI6IjEwOTExMzU2IiwiQUxHT1JJVEhNIjoiaG1hY1NIQTI1NiIsIlRFTkFOVF9JRCI6InJlbm1vbmV5IiwiVVNFUl9LRVkiOiI4YTlmODdkMTc0OTE1YjYxMDE3NDkxN2MxZmE5MDAxMiJ9";
         
         $signedRequestParts = explode('.', $signedRequest);
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
@@ -59,7 +59,7 @@ class Loan_account extends CI_Controller {
         // $loan_id = 30462881;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
-        // $loan_id = 80000016;
+        $loan_id = 40000133;
 
 
 		$endpointURL = $this->mambu_base_url . "api/users/" . $encoded_key;
@@ -249,27 +249,56 @@ class Loan_account extends CI_Controller {
             $rate = $interest_rate;  $new_principal_bal; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             // $rate = 8.14; $new_tenure = 11; $new_principal_bal = 250000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             
-            if($liquidation_amount > 0) {
-                $additional_schedule = ['principal' => $reduced_principal, 'interest' => $outstanding_balance];
-            } else {
-                $additional_schedule = [];
+            if($tenor < $max_tenor) {
+                 if(isset($_POST['warning'])) {
+                    return $this->output
+                    ->set_content_type('application/json')
+                    ->set_status_header(200)
+                    ->set_output(
+                        json_encode(["status" => "warning", "message" => "Client DTI will be increased"])
+                    );
+                }
             }
+           
         
             // create a new repayment schedule
-            $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate, $additional_schedule);
+            $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate);
             
             $schedule_id = uniqid('sch');
 
+            $penalty_due = 0;
+            $fees_due = 0;
+            foreach($repayments as $repayment) {
+                $fees_due += ($repayment->feesDue - $repayment->feesPaid);
+                $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
+                
+            }
+            $fees_due = $fees_due / $tenor;
+            $penalty_due = $penalty_due / $tenor;
+
             foreach($repayments as $index => $repayment) {
-                if($index < $tenor) {
+                if($index <= $tenor) {
+                    if($index == 0) {
+                        $new_schedule[] = [
+                            "schedule_id" => $schedule_id,
+                            "encodedKey" => $repayment->encodedKey,
+                            "interestDue" => 0,
+                            "principalDue" => 0,
+                            "dueDate" => $repayment->dueDate,
+                            "penaltyDue" => $penalty_due,
+                            "feesDue" => $fees_due,
+                            "parentAccountKey" => $repayment->parentAccountKey
+                        ];
+                        continue;
+                    }
                     $new_schedule[] = [
                         "schedule_id" => $schedule_id,
                         "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => $schedule[$index]['interest'],
-                        "principalDue" => $schedule[$index]['principal'],
+                        "interestDue" => $schedule[$index-1]['interest'],
+                        "principalDue" => $schedule[$index-1]['principal'],
                         "dueDate" => $repayment->dueDate,
-                        "penaltyDue" => 0,
-                        "feesDue" => 0,
+                        "penaltyDue" => $penalty_due,
+                        "feesDue" => $fees_due,
                         "parentAccountKey" => $repayment->parentAccountKey
                     ];
 
@@ -509,13 +538,7 @@ class Loan_account extends CI_Controller {
     }
 
 
-    function calculateSchedule($rate, $nper, $pv, $fee_rate, $first_schedule) {
-
-        $schedule = [];
-        if(!empty($first_schedule)) {
-            $nper = $nper - 1;
-            $schedule[] = $first_schedule;
-        }
+    function calculateSchedule($rate, $nper, $pv, $fee_rate) {
         $opening_bal = $this->openingBal($pv, $fee_rate);
         $monthly_payment = $this->getMonthlyPayment($rate, $nper, $opening_bal);
 

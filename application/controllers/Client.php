@@ -38,52 +38,43 @@ class Client extends CI_Controller {
         $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
         
 
-        $schedule_id = 'sch5f7c5ae1c70cd';
+        $schedule_id = 'sch5f7c9d19283dc';
         $loan_id = '40000133';
+
+        $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
 
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
         $collect_repayment = [];
-        foreach($repayments as $repayment) {
-            $collect_repayment['repayments'][] = [
-                "encodedKey" => $repayment['encodedKey'],
-                "principalDue" => round($repayment['principalDue'], 2),
-                "interestDue" => round($repayment['interestDue'], 2),
-                "parentAccountKey" => $repayment['parentAccountKey'],
-            ];
+        foreach($repayments as $index => $repayment) {
+            if($index == 0 ){
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($loan_schedule->outstandingBalance, 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } else {
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($repayment['principalDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            }
+           
         }
-        
-        $this->Base_model->dd($collect_repayment);
-       
+      
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
         $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
 
-
-        if(isset($response['returnCode'])) {
-            $data = [
-                "message" => "Failed to liquidate account",
-                "details" => json_encode($response['returnStatus']),
-                "schedule_id" => $schedule_id,
-                "loan_id" => $loan_id,
-                "date" => date('Y-m-d H:i:s')
-            ];
-            $this->Base_model->create('liquidation_log', $data);
-            return $this->output
-            ->set_content_type('application/json')
-            ->set_status_header(400)
-            ->set_output(
-                json_encode($response['returnStatus'])
-            );
-        }
-
-        return $this->output
-        ->set_content_type('application/json')
-        ->set_status_header(200)
-        ->set_output(
-            json_encode($response)
-        );
         
-        
+        $this->Base_model->dd($collect_repayment);
+       
         // echo $monthly_payment;
     }
 
@@ -442,13 +433,27 @@ class Client extends CI_Controller {
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
         $collect_repayment = [];
-        foreach($repayments as $repayment) {
-            $collect_repayment['repayments'][] = [
-                "encodedKey" => $repayment['encodedKey'],
-                "principalDue" => round($repayment['principalDue'], 2),
-                "interestDue" => round($repayment['interestDue'], 2),
-                "parentAccountKey" => $repayment['parentAccountKey'],
-            ];
+        foreach($repayments as $index => $repayment) {
+            if($index == 0 ){
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($loan_schedule->outstandingBalance, 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } else {
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($repayment['principalDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            }
+           
         }
       
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";

@@ -16,7 +16,7 @@
                                             <div class="form-group">
                                                 <div class="col-md-4">
                                                     <label for="data_file">Loan ID</label>
-                                                    <input type="hidden" name="max_tenor" id="max_tenor" value="<?= count($max_tenor) ?>">
+                                                    <input type="hidden" name="max_tenor" id="max_tenor" value="<?= count($max_tenor) - 1 ?>">
                                                     <input type="hidden" name="accountHolderKey" id="accountHolderKey" value="<?= $accountHolderKey?>">
                                                     <input type="email"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $id ?>" title="Client Loan ID" readonly>
                                                 </div>
@@ -88,7 +88,7 @@
                                                 </div>
                                                 <div class="col-lg-5">
                                                     <label for="tenor">Repayment Tenor (<?= strtolower($repaymentPeriodUnit) ?>)</label>
-                                                    <input type="text"  placeholder="Repayment Tenor" name="repayment_tenor" class="form-control" value="<?= count($max_tenor) ?>" title="Loan Repayment Tenor" required>
+                                                    <input type="text"  placeholder="Repayment Tenor" name="repayment_tenor" class="form-control" value="<?= count($max_tenor) - 1 ?>" title="Loan Repayment Tenor" required>
                                                     <span class="help-block" id="payment_tenor" style="color: red;"></span>
                                                 </div>
                                                 
