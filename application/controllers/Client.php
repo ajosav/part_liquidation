@@ -33,6 +33,102 @@ class Client extends CI_Controller {
 
     }
 
+    public function index() {
+        // $rate = 4.740; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.01 / 100);
+        $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+        
+
+        $schedule_id = 'sch5f7c5ae1c70cd';
+        $loan_id = '40000133';
+
+        $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
+
+        $collect_repayment = [];
+        foreach($repayments as $repayment) {
+            $collect_repayment['repayments'][] = [
+                "encodedKey" => $repayment['encodedKey'],
+                "principalDue" => round($repayment['principalDue'], 2),
+                "interestDue" => round($repayment['interestDue'], 2),
+                "parentAccountKey" => $repayment['parentAccountKey'],
+            ];
+        }
+        
+        $this->Base_model->dd($collect_repayment);
+       
+        $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
+        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
+
+
+        if(isset($response['returnCode'])) {
+            $data = [
+                "message" => "Failed to liquidate account",
+                "details" => json_encode($response['returnStatus']),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+            return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(400)
+            ->set_output(
+                json_encode($response['returnStatus'])
+            );
+        }
+
+        return $this->output
+        ->set_content_type('application/json')
+        ->set_status_header(200)
+        ->set_output(
+            json_encode($response)
+        );
+        
+        
+        // echo $monthly_payment;
+    }
+
+    // function calculateSchedule($rate, $nper, $pv, $fv, $type, $fee_rate) {
+    //     $opening_bal = $this->openingBal($pv, $fee_rate);
+    //     $monthly_payment = $this->getMonthlyPayment($rate, $nper, $opening_bal);
+    //     $schedule = [];
+
+    //     $initial_bal = $opening_bal; 
+    
+
+    //     for($i = 1; $i <= $nper; $i++) {
+            
+    //         $interest = round(($initial_bal * ($rate / 100)), 2);
+    //         $principal = round(($monthly_payment - $interest), 2);
+    //         $new_balance = round(($initial_bal - $principal), 2);
+
+    //         $schedule[] = [
+    //             'opening_balance' => $initial_bal,
+    //             'monthly_payment' => $monthly_payment,
+    //             'principal' => $principal,
+    //             'interest' => $interest,
+    //             'balance' => $new_balance,
+    //         ];
+
+    //         $initial_bal = $new_balance > 0 ? $new_balance : 0;            
+    //     }
+
+    //     return $schedule;
+    // }
+
+    // function getMonthlyPayment($interest, $tenure, $PV, $FV = 0.00, $type = 0){
+    //     $interest = ($interest / 100);
+    //     $xp = pow((1 + $interest), $tenure);
+    //     return (
+    //         $PV * $interest * $xp / ($xp - 1) + $interest / ($xp - 1) * $FV) *
+    //         ($type == 0 ? 1 : 1 / ($interest + 1)
+    //     );
+    // }
+
+    // function openingBal($amount, $feeRate) {
+    //     return $amount * (1 + $feeRate);
+    // }
+
+   
     public function loan_schedule($url = "") {
         if(base64_encode(base64_decode($url)) != $url) {
             $this->load->view('part_liquidation/client/client_link_error'); 
@@ -342,66 +438,7 @@ class Client extends CI_Controller {
                     );
                     
         }
-        
-        if($loan_schedule->outstandingBalance > 0) {
-            $repayment_data = '';
-            if($loan_schedule->transaction_method != '') {
-                $repayment_data = [
-                    "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->outstandingBalance, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
-                    "method" => $loan_schedule->transactionChannel,
-                    "customInformation" => [
-                        [
-                            "value" => $loan_schedule->transaction_method,
-                            "customFieldID" => "Repayment_Method_Transactions"
-                        ]
-                    ]
-                ];
-            } else {
-                $repayment_data = [
-                    "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->outstandingBalance, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
-                ];
-            }
-            
-            $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
-            
-            if(isset($response['returnCode'])) {
-                $data = [
-                    "message" => "Failed to pay outstanding Balance",
-                    "details" => json_encode($response['returnStatus']),
-                    "schedule_id" => $schedule_id,
-                    "loan_id" => $loan_id,
-                    "date" => date('Y-m-d H:i:s')
-                ];
-                $this->Base_model->create('liquidation_log', $data);
-                return $this->output
-                ->set_content_type('application/json')
-                ->set_status_header(400)
-                ->set_output(
-                    json_encode($response['returnStatus'])
-                );
-            }
 
-            $data = [
-                "message" => "Outstanding Repayments settled",
-                "details" => json_encode($response),
-                "schedule_id" => $schedule_id,
-                "loan_id" => $loan_id,
-                "date" => date('Y-m-d H:i:s')
-            ];
-            $this->Base_model->create('liquidation_log', $data);
-
-        }
-
-        
-        $loan_repayments = json_decode($this->Base_model->get_repayments($loan_id), TRUE);
-        // $outstanding_repayments = $this->get_outstanding_repayments($loan_repayments);
-
-        // $new_loan_tenor = $this->Base_model->reduce_loan_tenure($outstanding_repayments, $loan_schedule->tenure);
-        
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
         $collect_repayment = [];
@@ -409,22 +446,11 @@ class Client extends CI_Controller {
             $collect_repayment['repayments'][] = [
                 "encodedKey" => $repayment['encodedKey'],
                 "principalDue" => round($repayment['principalDue'], 2),
-                "penaltyDue" => round($repayment['penaltyDue'], 2),
                 "interestDue" => round($repayment['interestDue'], 2),
-                "feesDue" => round($repayment['fessDue'], 2),
                 "parentAccountKey" => $repayment['parentAccountKey'],
             ];
         }
-
-        // return $this->output
-        // ->set_content_type('application/json')
-        // ->set_status_header(400)
-        // ->set_output(
-        //     json_encode($collect_repayment)
-        // );
-
-
-
+      
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
         $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
 
@@ -445,6 +471,61 @@ class Client extends CI_Controller {
                 json_encode($response['returnStatus'])
             );
         }
+
+        if($loan_schedule->liquidationAmount > 0) {
+            $repayment_data = '';
+            if($loan_schedule->transaction_method != '') {
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->liquidationAmount, 2),
+                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+                    "method" => $loan_schedule->transactionChannel,
+                    "customInformation" => [
+                        [
+                            "value" => $loan_schedule->transaction_method,
+                            "customFieldID" => "Repayment_Method_Transactions"
+                        ]
+                    ]
+                ];
+            } else {
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->liquidationAmount, 2),
+                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
+                ];
+            }
+            
+            $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
+            
+            if(isset($response['returnCode'])) {
+                $data = [
+                    "message" => "Failed to pay Liquiation Balance",
+                    "details" => json_encode($response['returnStatus']),
+                    "schedule_id" => $schedule_id,
+                    "loan_id" => $loan_id,
+                    "date" => date('Y-m-d H:i:s')
+                ];
+                $this->Base_model->create('liquidation_log', $data);
+                return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(
+                    json_encode($response['returnStatus'])
+                );
+            }
+
+            $data = [
+                "message" => "Bulk Repayments settled",
+                "details" => json_encode($response),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+
+        }
+
+      
 
         return $this->output
         ->set_content_type('application/json')

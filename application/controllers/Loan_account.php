@@ -59,7 +59,7 @@ class Loan_account extends CI_Controller {
         // $loan_id = 30462881;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
-        // $loan_id = 30462881;
+        // $loan_id = 80000016;
 
 
 		$endpointURL = $this->mambu_base_url . "api/users/" . $encoded_key;
@@ -159,7 +159,7 @@ class Loan_account extends CI_Controller {
         $repayments = json_decode($this->Base_model->get_repayments($loan_id));
         $outstanding_repayments = [];
         foreach($repayments as $repayment) {
-            if((string) $repayment->state != "PAID") {
+            if((string) $repayment->state != "PAID" && $repayment->state != "GRACE") {
                 $outstanding_repayments[] = $repayment;
             }
         }
@@ -171,13 +171,14 @@ class Loan_account extends CI_Controller {
         $repayments = json_decode($this->Base_model->get_repayments($loan_id));
         $available_tenor = [];
         foreach($repayments as $repayment) {
-            if((string) $repayment->state != "PAID" && (string) $repayment->state != "LATE") {
+            if((string) $repayment->state != "PAID" && (string) $repayment->state != "LATE" && (string) $repayment->state != "GRACE") {
                 $available_tenor[] = $repayment;
             }
         }
 
         return $available_tenor;
     }
+
 
     public function recalculate_schedule() {
         if($this->input->method() != 'post') {
@@ -233,66 +234,60 @@ class Loan_account extends CI_Controller {
         $transaction_method = $this->input->post('transaction_method');
 
         // $principal_remainder = $liquidation_amount - ($interest_overdue) - ($penalty_due) - ($interest_accrued + $fees_due) - ($principal_due);
-        // $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($interest_accrued + $fees_due) + ($principal_due);
-        $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($fees_due) + ($principal_due);
+        $outstanding_balance = ($interest_overdue + $penalty_due + $interest_accrued + $fees_due);
+        // $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($fees_due) + ($principal_due);
 
         // pass the outstanding balance to repayments endpoint to cover for debts
 
-        // create a new repayment schedule
         $repayments = $this->get_max_available_tenor($loan_id);
-        if($outstanding_balance < $liquidation_amount) {
-            $new_principal_bal =  abs(($liquidation_amount - $outstanding_balance) - $principal_balance);
-            $spread_principal = ($new_principal_bal / $tenor);
+
+        if($outstanding_balance <= $liquidation_amount) {
+            $reduced_principal = $liquidation_amount - $outstanding_balance;
+            $new_principal_bal =  abs($reduced_principal - $principal_balance);
+            // $spread_principal = ($new_principal_bal / $tenor);
             $new_schedule = [];
-            if($tenor == $max_tenor) {
-                foreach($repayments as $repayment) {
-                    $repayment->principalDue = $spread_principal;
-                    $repayment->feesDue = ($repayment->feesDue - $repayment->feesPaid);
-                    $repayment->penaltyDue = ($repayment->penaltyDue - $repayment->penaltyPaid);
-                    $repayment->interestDue = ($repayment->interestDue - $repayment->interestPaid);
-                    $new_schedule[] = $repayment;
-                }
+            $rate = $interest_rate;  $new_principal_bal; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+            // $rate = 8.14; $new_tenure = 11; $new_principal_bal = 250000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+            
+            if($liquidation_amount > 0) {
+                $additional_schedule = ['principal' => $reduced_principal, 'interest' => $outstanding_balance];
             } else {
-                if(isset($_POST['warning'])) {
-                    return $this->output
-                    ->set_content_type('application/json')
-                    ->set_status_header(200)
-                    ->set_output(
-                        json_encode(["status" => "warning", "message" => "Schedule Successfully Re-calculated"])
-                    );
-                }
-                $interest  = 0;
-                $fees_due = 0;
-                $penalty_due = 0;
-                foreach($repayments as $repayment) {
-                    $fees_due += ($repayment->feesDue - $repayment->feesPaid);
-                    $interest += ($repayment->interestDue - $repayment->interestPaid);
-                    $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
-                   
-                }
-                $interest = $interest / $tenor;
-                $fees_due = $fees_due / $tenor;
-                $penalty_due = $penalty_due / $tenor;
-                foreach($repayments as $index => $repayment) {
-                    if($index < $tenor) {
-                        $repayment->principalDue = $spread_principal;
-                        $repayment->interestDue = $interest;
-                        $repayment->feesDue = $fees_due;
-                        $repayment->penaltyDue = $penalty_due;
-                        $new_schedule[] = $repayment;
-                    } else {
-                        $repayment->principalDue = 0;
-                        $repayment->interestDue = 0;
-                        $repayment->feesDue = 0;
-                        $repayment->penaltyDue = 0;
-                        $new_schedule[] = $repayment;
-                    }
-                    
-                }
-
+                $additional_schedule = [];
             }
-
+        
+            // create a new repayment schedule
+            $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate, $additional_schedule);
+            
             $schedule_id = uniqid('sch');
+
+            foreach($repayments as $index => $repayment) {
+                if($index < $tenor) {
+                    $new_schedule[] = [
+                        "schedule_id" => $schedule_id,
+                        "encodedKey" => $repayment->encodedKey,
+                        "interestDue" => $schedule[$index]['interest'],
+                        "principalDue" => $schedule[$index]['principal'],
+                        "dueDate" => $repayment->dueDate,
+                        "penaltyDue" => 0,
+                        "feesDue" => 0,
+                        "parentAccountKey" => $repayment->parentAccountKey
+                    ];
+
+                } else {
+                    $new_schedule[] = [
+                        "schedule_id" => $schedule_id,
+                        "encodedKey" => $repayment->encodedKey,
+                        "interestDue" => 0,
+                        "principalDue" => 0,
+                        "dueDate" => $repayment->dueDate,
+                        "penaltyDue" => 0,
+                        "feesDue" => 0,
+                        "parentAccountKey" => $repayment->parentAccountKey
+                    ];
+                }
+                
+            }
+            
             $loan_schedule = [
                 "loan_id" => $loan_id,
                 "accountHolderKey" => $accountHolderKey,
@@ -304,35 +299,89 @@ class Loan_account extends CI_Controller {
                 "transaction_method" => $transaction_method,
                 "tenure" => $tenor,
                 "principalBalance" => $new_principal_bal,
+                "reducedPrincipal" => $reduced_principal,
                 "date_generated" => date('Y-m-d H:i:s'),
                 "outstandingBalance" => $outstanding_balance
             ];
-            
-            $schedule_data = [];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {
-                foreach($new_schedule as $schedule) {
-                    $data = [
-                        "schedule_id" => $schedule_id,
-                        "encodedKey" => $schedule->encodedKey,
-                        "interestDue" => $schedule->interestDue,
-                        "principalDue" => $schedule->principalDue,
-                        "dueDate" => $schedule->dueDate,
-                        "penaltyDue" => $schedule->penaltyDue,
-                        "feesDue" => $schedule->feesDue,
-                        "parentAccountKey" => $schedule->parentAccountKey
-                    ];
-                    array_push($schedule_data, $data);
-                }
-                if($this->Base_model->createBatch('repayment_schedule', $schedule_data)) {
+            
+                if($this->Base_model->createBatch('repayment_schedule', $new_schedule)) {
                     return $this->output
                     ->set_content_type('application/json')
                     ->set_status_header(200)
                     ->set_output(
                         json_encode(["status" => "created", "message" => "Schedule Successfully Re-calculated", "schedule_id" => $schedule_id])
                     );
-               }
+                }
             }
+            // if($tenor == $max_tenor) {
+            //     foreach($repayments as $repayment) {
+            //         $repayment->principalDue = $spread_principal;
+            //         $repayment->feesDue = ($repayment->feesDue - $repayment->feesPaid);
+            //         $repayment->penaltyDue = ($repayment->penaltyDue - $repayment->penaltyPaid);
+            //         $repayment->interestDue = ($repayment->interestDue - $repayment->interestPaid);
+            //         $new_schedule[] = $repayment;
+            //     }
+            // } else {
+            //     if(isset($_POST['warning'])) {
+            //         return $this->output
+            //         ->set_content_type('application/json')
+            //         ->set_status_header(200)
+            //         ->set_output(
+            //             json_encode(["status" => "warning", "message" => "Schedule Successfully Re-calculated"])
+            //         );
+            //     }
+            //     $interest  = 0;
+            //     $fees_due = 0;
+            //     $penalty_due = 0;
+            //     foreach($repayments as $repayment) {
+            //         $fees_due += ($repayment->feesDue - $repayment->feesPaid);
+            //         $interest += ($repayment->interestDue - $repayment->interestPaid);
+            //         $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
+                   
+            //     }
+            //     $interest = $interest / $tenor;
+            //     $fees_due = $fees_due / $tenor;
+            //     $penalty_due = $penalty_due / $tenor;
+            //     foreach($repayments as $index => $repayment) {
+            //         if($index < $tenor) {
+            //             $repayment->principalDue = $spread_principal;
+            //             $repayment->interestDue = $interest;
+            //             $repayment->feesDue = $fees_due;
+            //             $repayment->penaltyDue = $penalty_due;
+            //             $new_schedule[] = $repayment;
+            //         } else {
+            //             $repayment->principalDue = 0;
+            //             $repayment->interestDue = 0;
+            //             $repayment->feesDue = 0;
+            //             $repayment->penaltyDue = 0;
+            //             $new_schedule[] = $repayment;
+            //         }
+                    
+            //     }
+
+            // }
+
+            
+            $schedule_data = [];
+
+            // if($this->Base_model->create('loan_schedule', $loan_schedule)) {
+            //     foreach($new_schedule as $schedule) {
+            //         $data = [
+            //             "schedule_id" => $schedule_id,
+            //             "encodedKey" => $schedule->encodedKey,
+            //             "interestDue" => $schedule->interestDue,
+            //             "principalDue" => $schedule->principalDue,
+            //             "dueDate" => $schedule->dueDate,
+            //             "penaltyDue" => $schedule->penaltyDue,
+            //             "feesDue" => $schedule->feesDue,
+            //             "parentAccountKey" => $schedule->parentAccountKey
+            //         ];
+            //         array_push($schedule_data, $data);
+            //     }
+                
+            // }
 
 
             return $this->output
@@ -350,7 +399,7 @@ class Loan_account extends CI_Controller {
             ->set_content_type('application/json')
             ->set_status_header(400)
             ->set_output(
-                json_encode("Liquidation amount is not lower than total due")
+                json_encode("Liquidation amount is lower than total due")
             );
        
     }
@@ -458,6 +507,53 @@ class Loan_account extends CI_Controller {
 		$this->load->view('part_liquidation/liquidation_history', $data); 
 		$this->load->view('part_liquidation/footer_link');
     }
-	
+
+
+    function calculateSchedule($rate, $nper, $pv, $fee_rate, $first_schedule) {
+
+        $schedule = [];
+        if(!empty($first_schedule)) {
+            $nper = $nper - 1;
+            $schedule[] = $first_schedule;
+        }
+        $opening_bal = $this->openingBal($pv, $fee_rate);
+        $monthly_payment = $this->getMonthlyPayment($rate, $nper, $opening_bal);
+
+        $initial_bal = $opening_bal; 
+    
+
+        for($i = 1; $i <= $nper; $i++) {
+            
+            $interest = $initial_bal * ($rate / 100);
+            $principal = $monthly_payment - $interest;
+            $new_balance = $initial_bal - $principal;
+
+            $schedule[] = [
+                'opening_balance' => $initial_bal,
+                'monthly_payment' => $monthly_payment,
+                'principal' => $principal,
+                'interest' => $interest,
+                'balance' => $new_balance,
+            ];
+
+            $initial_bal = $new_balance > 0 ? $new_balance : 0;            
+        }
+
+        return $schedule;
+    }
+
+    function getMonthlyPayment($interest, $tenure, $PV, $FV = 0.00, $type = 0){
+        $interest = ($interest / 100);
+        $xp = pow((1 + $interest), $tenure);
+        return (
+            $PV * $interest * $xp / ($xp - 1) + $interest / ($xp - 1) * $FV) *
+            ($type == 0 ? 1 : 1 / ($interest + 1)
+        );
+    }
+
+    function openingBal($amount, $feeRate) {
+        return $amount * (1 + $feeRate);
+    }
+
 
 }
