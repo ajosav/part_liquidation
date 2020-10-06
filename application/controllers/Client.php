@@ -38,8 +38,8 @@ class Client extends CI_Controller {
         $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
         
 
-        $schedule_id = 'sch5f7c9d19283dc';
-        $loan_id = '40000133';
+        $schedule_id = 'sch5f7ca2cb03260';
+        $loan_id = '16334266';
 
         $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
 
@@ -68,6 +68,14 @@ class Client extends CI_Controller {
             }
            
         }
+        return $this->output
+        ->set_content_type('application/json')
+        ->set_status_header(400)
+        ->set_output(
+            json_encode($collect_repayment)
+        );
+
+
       
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
         $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
