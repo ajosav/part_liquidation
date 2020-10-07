@@ -18,6 +18,7 @@
                                     <input type="hidden" name="client_lname" value="<?= $client_lname ?>">
                                     <input type="hidden" name="client_email" value="<?= $client_email ?>">
                                     <input type="hidden" name="principalBal" value="<?= $loanDetails['principalBalance'] ?>">
+                                    <input type="hidden" name="loan_amount" value="<?= $loanDetails['loanAmount'] ?>">
                                     <input type="hidden" name="totalInterestDue" value="<?= $totalInterestDue ?>">
                                     <input type="hidden" name="schedule_id" id="schedule_id" value="<?= $schedule_id?>">
                                     <input type="hidden"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $loan_id ?>" title="Client Loan ID">

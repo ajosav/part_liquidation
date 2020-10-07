@@ -409,6 +409,7 @@ class Client extends CI_Controller {
         $client_email = $this->input->post('client_email');
         $total_interest_due = $this->input->post('totalInterestDue');
         $principalBal = $this->input->post('principalBal');
+        $loan_amount = $this->input->post('loan_amount');
         $loan_id = $this->input->post('loan_id');
         $otp_code = $this->input->post('otp');
 
@@ -578,6 +579,7 @@ class Client extends CI_Controller {
                     "amount" => round($loan_schedule->liquidationAmount, 2),
                     "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
                     "method" => $loan_schedule->transactionChannel,
+                    "notes" => "BEING Part-Liquidation of Bulk amount",
                     "customInformation" => [
                         [
                             "value" => $loan_schedule->transaction_method,
@@ -589,7 +591,8 @@ class Client extends CI_Controller {
                 $repayment_data = [
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->liquidationAmount, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
+                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+                    "notes" => "BEING Part-Liquidation of Bulk amount"
                 ];
             }
             
@@ -633,7 +636,51 @@ class Client extends CI_Controller {
 
         }
 
-      
+        $this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], ['status' => 5]);
+        $team_mail_body = '
+            <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+                <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                    <p>Hello Team, </p>
+                    <p>Please note that '. $client_fname .' has accepted has accepted the New repayment schedule based on their recent bulk payment N' .$loan_amount. ' for account '. $loan_id .'</p>
+                    
+                    <p>The New repayment schedule is now Active </p>
+
+                    <p>
+                    <b>Best Regards, <br>
+                    The Renmoney Team </b>
+                    </p>
+
+                <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+                <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+                </div>';
+        $client_mail_body = '
+            <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
+                <p>Dear '. $client_fname .', </p>
+                <p>Please note that the New repayment schedule is now Active. For any enquiries, contact hello@renmoney.com</p>
+            <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
+            <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
+            </div>';
+
+        $team_email_body = [
+            "recipient" => $this->team_mail,
+            "subject" => "Accepted Repayment Schedule",
+            "content" => $team_mail_body,
+            "cc" => $this->cc,
+            "category" => ['Part-liquidation']
+        ];
+
+        $client_email_body = [
+            "recipient" => $client_email,
+            "subject" => "Repayment Schedule Updated",
+            "content" => $client_mail_body,
+            "cc" => $this->cc,
+            "category" => ['Part-liquidation']
+        ];
+
+        
+        $this->Base_model->notifyMail($team_email_body);
+        $this->Base_model->notifyMail($client_email_body);
 
         return $this->output
         ->set_content_type('application/json')
@@ -641,9 +688,6 @@ class Client extends CI_Controller {
         ->set_output(
             json_encode("Loan account liquidation was successful")
         );
-
-
-
         
         // $this->Base_model->
 

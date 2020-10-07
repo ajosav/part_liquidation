@@ -266,29 +266,35 @@ class Loan_account extends CI_Controller {
             
             $schedule_id = uniqid('sch');
 
-            $penalty_due = 0;
-            $fees_due = 0;
+            $total_penalty_due = 0;
+            $total_fees_due = 0;
             $interest = 0;
 
             $total_interest_due = 0;
             $repayments_interest_due = $this->get_outstanding_repayments($loan_id);
             foreach($repayments_interest_due as $repayment) {
-                $fees_due += ($repayment->feesDue - $repayment->feesPaid);
-                $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
+                $total_fees_due += ($repayment->feesDue - $repayment->feesPaid);
+                $total_penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
                 $total_interest_due += ($repayment->interestDue - $repayment->interestPaid);
             }
 
-            $fees_due = $fees_due / $tenor;
-            $penalty_due = $penalty_due / $tenor;
+            $new_fees_due = ($total_fees_due - $fees_due) / $tenor;
+            $new_penalty_due = ($total_penalty_due - $penalty_due) / $tenor;
 
             if($interest_accrued > 0 && $interest_overdue == 0) {
-                $interest = ($total_interest_due - $interest_accrued) / $tenor;
+                $interest = ($total_interest_due - $interest_accrued);
             } elseif($interest_accrued == 0 && $interest_overdue > 0) {
-                $interest = ($total_interest_due - $interest_overdue) / $tenor;
+                $interest = ($total_interest_due - $interest_overdue);
             } else {
-                $interest = ($total_interest_due - ($interest_accrued + $interest_overdue)) / $tenor;
+                $interest = $total_interest_due - ($interest_accrued + $interest_overdue);
             }
 
+            if($interest_accrued == 0) {
+                $interest_accrued = $interest_accrued + 1;
+                $interest = $interest - 1;
+            }
+
+            $interest = $interest / $tenor;
             foreach($repayments as $index => $repayment) {
                 if($index <= $tenor) {
                     if($index == 0) {
@@ -310,8 +316,8 @@ class Loan_account extends CI_Controller {
                         "interestDue" => $interest,
                         "principalDue" => $schedule[$index-1]['principal'],
                         "dueDate" => $repayment->dueDate,
-                        "penaltyDue" => $penalty_due,
-                        "feesDue" => $fees_due,
+                        "penaltyDue" => $new_penalty_due,
+                        "feesDue" => $new_fees_due,
                         "parentAccountKey" => $repayment->parentAccountKey
                     ];
 
