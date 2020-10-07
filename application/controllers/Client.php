@@ -530,7 +530,7 @@ class Client extends CI_Controller {
                 $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => $principalDue,
+                    "principalDue" => round($principalDue, 2),
                     "interestDue" => round($interestDue, 2),
                     "feesDue" => round($feesDue, 2),
                     "penaltyDue" => round($penaltyDue, 2),

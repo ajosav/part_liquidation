@@ -302,8 +302,8 @@ class Loan_account extends CI_Controller {
             }
 
             if($interest_accrued == 0) {
-                $interest_accrued = $interest_accrued + 2;
-                $interest = $interest - 2;
+                $interest_accrued = $interest_accrued + 1;
+                $interest = $interest - 1;
             }
 
             // find late repayments to reschedule differently
