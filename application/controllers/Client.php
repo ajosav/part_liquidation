@@ -409,6 +409,8 @@ class Client extends CI_Controller {
         $client_email = $this->input->post('client_email');
         $total_interest_due = $this->input->post('totalInterestDue');
         $principalBal = $this->input->post('principalBal');
+        $penaltyBal = $this->input->post('penaltyBal');
+        $feesBal = $this->input->post('feesBal');
         $loan_amount = $this->input->post('loan_amount');
         $loan_id = $this->input->post('loan_id');
         $otp_code = $this->input->post('otp');
@@ -510,22 +512,28 @@ class Client extends CI_Controller {
 
         $principal_sum = array_sum(array_column($repayment_collections, 'principalDue'));
         $interest_sum = array_sum(array_column($repayment_collections, 'interestDue'));
+        $fees_sum = array_sum(array_column($repayment_collections, 'feesDue'));
+        $penalty_sum = array_sum(array_column($repayment_collections, 'penaltyDue'));
 
 
         $newInterest =  ((float)$total_interest_due) - $interest_sum;
         $newPrincipal = ((float) $principalBal - $principal_sum);
+        $newFees = ((float) $feesBal - $fees_sum);
+        $newPenalty = ((float) $penaltyBal - $penalty_sum);
 
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 ){
                 $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
                 $interestDue = round($repayment['interestDue'], 2) + $newInterest;
+                $feesDue = round($repayment['feesDue'], 2) + $newFees;
+                $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => $principalDue,
                     "interestDue" => round($interestDue, 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "feesDue" => $feesDue,
+                    "penaltyDue" => $penaltyDue,
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
@@ -641,7 +649,7 @@ class Client extends CI_Controller {
             <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
                 <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
                     <p>Hello Team, </p>
-                    <p>Please note that '. $client_fname .' has accepted has accepted the New repayment schedule based on their recent bulk payment N' .$loan_amount. ' for account '. $loan_id .'</p>
+                    <p>Please note that '. $client_fname .' has accepted has accepted the New repayment schedule based on their recent bulk payment N' . round($loan_schedule->liquidationAmount, 2) . ' for account '. $loan_id .'</p>
                     
                     <p>The New repayment schedule is now Active </p>
 

@@ -17,6 +17,8 @@
                                     <input type="hidden" name="client_fname" value="<?= $client_fname ?>">
                                     <input type="hidden" name="client_lname" value="<?= $client_lname ?>">
                                     <input type="hidden" name="client_email" value="<?= $client_email ?>">
+                                    <input type="hidden" name="penaltyBal" value="<?= $loanDetails['penaltyDue'] ?>">
+                                    <input type="hidden" name="feesBal" value="<?=$loanDetails['feesDue'] ?>">
                                     <input type="hidden" name="principalBal" value="<?= $loanDetails['principalBalance'] ?>">
                                     <input type="hidden" name="loan_amount" value="<?= $loanDetails['loanAmount'] ?>">
                                     <input type="hidden" name="totalInterestDue" value="<?= $totalInterestDue ?>">
