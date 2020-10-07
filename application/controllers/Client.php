@@ -38,8 +38,8 @@ class Client extends CI_Controller {
         $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
         
 
-        $schedule_id = 'sch5f7da9394e3d7';
-        $loan_id = '40000133';
+        $schedule_id = 'sch5f7ca55fe0cff';
+        $loan_id = '30380087';
 
         $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
 
@@ -48,12 +48,10 @@ class Client extends CI_Controller {
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 ){
-                $first_int_due = $repayment['interestDue'] > 0.00 ? (round($repayment['interestDue'], 2) - 0.01) : 0;
-                $first_prin_due = $loan_schedule->reducedPrincipal > 0.00 ? (round($loan_schedule->reducedPrincipal, 2) - 0.01) : 0;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" =>$first_prin_due,
-                    "interestDue" => $first_int_due,
+                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
                     "feesDue" => round($repayment['feesDue'], 2),
                     "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
@@ -445,12 +443,10 @@ class Client extends CI_Controller {
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 ){
-                $first_int_due = $repayment['interestDue'] > 0.00 ? (round($repayment['interestDue'], 2) - 0.01) : 0;
-                $first_prin_due = $loan_schedule->reducedPrincipal > 0.00 ? (round($loan_schedule->reducedPrincipal, 2) - 0.01) : 0;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" =>$first_prin_due,
-                    "interestDue" => $first_int_due,
+                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
                     "feesDue" => round($repayment['feesDue'], 2),
                     "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
@@ -515,13 +511,6 @@ class Client extends CI_Controller {
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
             
             if(isset($response['returnCode'])) {
-                $data = [
-                    "message" => "Failed to pay Liquiation Balance",
-                    "details" => json_encode($response['returnStatus']),
-                    "schedule_id" => $schedule_id,
-                    "loan_id" => $loan_id,
-                    "date" => date('Y-m-d H:i:s')
-                ];
                 $repayment_data = [
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->liquidationAmount, 2),
@@ -529,6 +518,13 @@ class Client extends CI_Controller {
                 ];
                 $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
                 if(isset($response['returnCode'])) {
+                    $data = [
+                        "message" => "Failed to pay Liquiation Balance",
+                        "details" => json_encode($response['returnStatus']),
+                        "schedule_id" => $schedule_id,
+                        "loan_id" => $loan_id,
+                        "date" => date('Y-m-d H:i:s')
+                    ];
                     $this->Base_model->create('liquidation_log', $data);
                     return $this->output
                     ->set_content_type('application/json')
@@ -537,14 +533,8 @@ class Client extends CI_Controller {
                         json_encode($response['returnStatus'])
                     );
                 }
-                $data = [
-                    "message" => "Bulk Repayments settled",
-                    "details" => json_encode($response),
-                    "schedule_id" => $schedule_id,
-                    "loan_id" => $loan_id,
-                    "date" => date('Y-m-d H:i:s')
-                ];
-                $this->Base_model->create('liquidation_log', $data);
+
+                
             }
 
             $data = [
