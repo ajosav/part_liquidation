@@ -56,7 +56,7 @@ class Loan_account extends CI_Controller {
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
         $loan_id = $mambuPostBack['OBJECT_ID'];
-        // $loan_id = 80000016;
+        // $loan_id = 30463851;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
         // $loan_id = 40000133;
@@ -179,6 +179,18 @@ class Loan_account extends CI_Controller {
         return $available_tenor;
     }
 
+    private function get_late_repayments($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
+        $available_tenor = [];
+        foreach($repayments as $repayment) {
+            if((string) $repayment->state == "LATE") {
+                $available_tenor[] = $repayment;
+            }
+        }
+
+        return $available_tenor;
+    }
+
 
     public function recalculate_schedule() {
         if($this->input->method() != 'post') {
@@ -294,8 +306,34 @@ class Loan_account extends CI_Controller {
                 $interest = $interest - 1;
             }
 
+            // find late repayments to reschedule differently
+            $late_repayment_interest = 0;
+            $late_repayments_only = $this->get_late_repayments($loan_id);
+            if(!empty($late_repayments_only)) {
+                foreach($late_repayments_only as $repayment) {
+                    $late_repayment_interest += $repayment->interestDue - $repayment->interestPaid;
+                }
+
+
+                foreach($late_repayments_only as $repayment) {
+                    $new_schedule[] = [
+                        "schedule_id" => $schedule_id,
+                        "encodedKey" => $repayment->encodedKey,
+                        "interestDue" => $late_repayment_interest,
+                        "principalDue" => 0,
+                        "dueDate" => $repayment->dueDate,
+                        "penaltyDue" => 0,
+                        "feesDue" => 0,
+                        "parentAccountKey" => $repayment->parentAccountKey
+                    ];
+                    break;
+                }
+
+
+            }            
+
             $interest = $interest / $tenor;
-            foreach($repayments_interest_due as $index => $repayment) {
+            foreach($repayments as $index => $repayment) {
                 if($index <= $tenor) {
                     if($index == 0) {
                         $new_schedule[] = [
@@ -310,29 +348,16 @@ class Loan_account extends CI_Controller {
                         ];
                         continue;
                     }
-                    if($repayment->state == "LATE") {
-                        $new_schedule[] = [
-                            "schedule_id" => $schedule_id,
-                            "encodedKey" => $repayment->encodedKey,
-                            "interestDue" => 0,
-                            "principalDue" =>0,
-                            "dueDate" => $repayment->dueDate,
-                            "penaltyDue" => 0,
-                            "feesDue" => 0,
-                            "parentAccountKey" => $repayment->parentAccountKey
-                        ];
-                    } else {
-                        $new_schedule[] = [
-                            "schedule_id" => $schedule_id,
-                            "encodedKey" => $repayment->encodedKey,
-                            "interestDue" => $interest,
-                            "principalDue" => $schedule[$index-1]['principal'],
-                            "dueDate" => $repayment->dueDate,
-                            "penaltyDue" => $new_penalty_due,
-                            "feesDue" => $new_fees_due,
-                            "parentAccountKey" => $repayment->parentAccountKey
-                        ];
-                    }
+                    $new_schedule[] = [
+                        "schedule_id" => $schedule_id,
+                        "encodedKey" => $repayment->encodedKey,
+                        "interestDue" => $interest,
+                        "principalDue" => $schedule[$index-1]['principal'],
+                        "dueDate" => $repayment->dueDate,
+                        "penaltyDue" => $new_penalty_due,
+                        "feesDue" => $new_fees_due,
+                        "parentAccountKey" => $repayment->parentAccountKey
+                    ];
 
                 } else {
                     $new_schedule[] = [
