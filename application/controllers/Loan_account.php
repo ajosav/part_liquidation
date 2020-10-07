@@ -295,7 +295,7 @@ class Loan_account extends CI_Controller {
             }
 
             $interest = $interest / $tenor;
-            foreach($repayments as $index => $repayment) {
+            foreach($repayments_interest_due as $index => $repayment) {
                 if($index <= $tenor) {
                     if($index == 0) {
                         $new_schedule[] = [
@@ -310,16 +310,29 @@ class Loan_account extends CI_Controller {
                         ];
                         continue;
                     }
-                    $new_schedule[] = [
-                        "schedule_id" => $schedule_id,
-                        "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => $interest,
-                        "principalDue" => $schedule[$index-1]['principal'],
-                        "dueDate" => $repayment->dueDate,
-                        "penaltyDue" => $new_penalty_due,
-                        "feesDue" => $new_fees_due,
-                        "parentAccountKey" => $repayment->parentAccountKey
-                    ];
+                    if($repayment->state == "LATE") {
+                        $new_schedule[] = [
+                            "schedule_id" => $schedule_id,
+                            "encodedKey" => $repayment->encodedKey,
+                            "interestDue" => 0,
+                            "principalDue" =>0,
+                            "dueDate" => $repayment->dueDate,
+                            "penaltyDue" => 0,
+                            "feesDue" => 0,
+                            "parentAccountKey" => $repayment->parentAccountKey
+                        ];
+                    } else {
+                        $new_schedule[] = [
+                            "schedule_id" => $schedule_id,
+                            "encodedKey" => $repayment->encodedKey,
+                            "interestDue" => $interest,
+                            "principalDue" => $schedule[$index-1]['principal'],
+                            "dueDate" => $repayment->dueDate,
+                            "penaltyDue" => $new_penalty_due,
+                            "feesDue" => $new_fees_due,
+                            "parentAccountKey" => $repayment->parentAccountKey
+                        ];
+                    }
 
                 } else {
                     $new_schedule[] = [
@@ -363,73 +376,7 @@ class Loan_account extends CI_Controller {
                     );
                 }
             }
-            // if($tenor == $max_tenor) {
-            //     foreach($repayments as $repayment) {
-            //         $repayment->principalDue = $spread_principal;
-            //         $repayment->feesDue = ($repayment->feesDue - $repayment->feesPaid);
-            //         $repayment->penaltyDue = ($repayment->penaltyDue - $repayment->penaltyPaid);
-            //         $repayment->interestDue = ($repayment->interestDue - $repayment->interestPaid);
-            //         $new_schedule[] = $repayment;
-            //     }
-            // } else {
-            //     if(isset($_POST['warning'])) {
-            //         return $this->output
-            //         ->set_content_type('application/json')
-            //         ->set_status_header(200)
-            //         ->set_output(
-            //             json_encode(["status" => "warning", "message" => "Schedule Successfully Re-calculated"])
-            //         );
-            //     }
-            //     $interest  = 0;
-            //     $fees_due = 0;
-            //     $penalty_due = 0;
-            //     foreach($repayments as $repayment) {
-            //         $fees_due += ($repayment->feesDue - $repayment->feesPaid);
-            //         $interest += ($repayment->interestDue - $repayment->interestPaid);
-            //         $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
-                   
-            //     }
-            //     $interest = $interest / $tenor;
-            //     $fees_due = $fees_due / $tenor;
-            //     $penalty_due = $penalty_due / $tenor;
-            //     foreach($repayments as $index => $repayment) {
-            //         if($index < $tenor) {
-            //             $repayment->principalDue = $spread_principal;
-            //             $repayment->interestDue = $interest;
-            //             $repayment->feesDue = $fees_due;
-            //             $repayment->penaltyDue = $penalty_due;
-            //             $new_schedule[] = $repayment;
-            //         } else {
-            //             $repayment->principalDue = 0;
-            //             $repayment->interestDue = 0;
-            //             $repayment->feesDue = 0;
-            //             $repayment->penaltyDue = 0;
-            //             $new_schedule[] = $repayment;
-            //         }
-                    
-            //     }
-
-            // }
-
             
-            $schedule_data = [];
-
-            // if($this->Base_model->create('loan_schedule', $loan_schedule)) {
-            //     foreach($new_schedule as $schedule) {
-            //         $data = [
-            //             "schedule_id" => $schedule_id,
-            //             "encodedKey" => $schedule->encodedKey,
-            //             "interestDue" => $schedule->interestDue,
-            //             "principalDue" => $schedule->principalDue,
-            //             "dueDate" => $schedule->dueDate,
-            //             "penaltyDue" => $schedule->penaltyDue,
-            //             "feesDue" => $schedule->feesDue,
-            //             "parentAccountKey" => $schedule->parentAccountKey
-            //         ];
-            //         array_push($schedule_data, $data);
-            //     }
-                
-            // }
 
 
             return $this->output
