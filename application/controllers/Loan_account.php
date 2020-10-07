@@ -56,7 +56,7 @@ class Loan_account extends CI_Controller {
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
         $loan_id = $mambuPostBack['OBJECT_ID'];
-        // $loan_id = 30380087;
+        // $loan_id = 30463851;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
         // $loan_id = 40000133;
@@ -269,15 +269,25 @@ class Loan_account extends CI_Controller {
             $penalty_due = 0;
             $fees_due = 0;
             $interest = 0;
-            foreach($repayments as $repayment) {
+
+            $total_interest_due = 0;
+            $repayments_interest_due = $this->get_outstanding_repayments($loan_id);
+            foreach($repayments_interest_due as $repayment) {
                 $fees_due += ($repayment->feesDue - $repayment->feesPaid);
                 $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
-                $interest += ($repayment->interestDue - $repayment->interestPaid);
+                $total_interest_due += ($repayment->interestDue - $repayment->interestPaid);
             }
-            // $this->Base_model->dd($interest);
+            
             $fees_due = $fees_due / $tenor;
             $penalty_due = $penalty_due / $tenor;
-            $interest = $interest / $tenor;
+
+            if($interest_accrued > 0 && $interest_overdue == 0) {
+                $interest = ($total_interest_due - $interest_accrued) / $tenor;
+            } elseif($interest_accrued == 0 && $interest_overdue > 0) {
+                $interest = ($total_interest_due - $interest_overdue) / $tenor;
+            } else {
+                $interest = ($total_interest_due - ($interest_accrued + $interest_overdue)) / $tenor;
+            }
 
             foreach($repayments as $index => $repayment) {
                 if($index <= $tenor) {
