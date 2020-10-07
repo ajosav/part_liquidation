@@ -301,11 +301,6 @@ class Loan_account extends CI_Controller {
                 $interest = $total_interest_due - ($interest_accrued + $interest_overdue);
             }
 
-            if($interest_accrued == 0) {
-                $interest_accrued = $interest_accrued + 1;
-                $interest = $interest - 1;
-            }
-
             // find late repayments to reschedule differently
             $late_repayment_interest = 0;
             $late_repayments_only = $this->get_late_repayments($loan_id);
@@ -313,7 +308,6 @@ class Loan_account extends CI_Controller {
                 foreach($late_repayments_only as $repayment) {
                     $late_repayment_interest += $repayment->interestDue - $repayment->interestPaid;
                 }
-
 
                 foreach($late_repayments_only as $repayment) {
                     $new_schedule[] = [
