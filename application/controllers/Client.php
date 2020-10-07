@@ -532,8 +532,8 @@ class Client extends CI_Controller {
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => $principalDue,
                     "interestDue" => round($interestDue, 2),
-                    "feesDue" => $feesDue,
-                    "penaltyDue" => $penaltyDue,
+                    "feesDue" => round($feesDue, 2),
+                    "penaltyDue" => round($penaltyDue, 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
