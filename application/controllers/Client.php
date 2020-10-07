@@ -522,9 +522,9 @@ class Client extends CI_Controller {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => $principalDue,
-                    "interestDue" => $interestDue,
-                    // "feesDue" => round($repayment['feesDue'], 2),
-                    // "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "interestDue" => round($interestDue, 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
@@ -532,8 +532,8 @@ class Client extends CI_Controller {
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => round($repayment['principalDue'], 2),
                     "interestDue" => round($repayment['interestDue'], 2),
-                    // "feesDue" => round($repayment['feesDue'], 2),
-                    // "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             }
