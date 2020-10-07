@@ -487,26 +487,26 @@ class Client extends CI_Controller {
 
         if($loan_schedule->liquidationAmount > 0) {
             $repayment_data = '';
-            if($loan_schedule->transaction_method != '') {
-                $repayment_data = [
-                    "type" => "REPAYMENT",
-                    "amount" =>$loan_schedule->liquidationAmount,
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
-                    "method" => $loan_schedule->transactionChannel,
-                    "customInformation" => [
-                        [
-                            "value" => $loan_schedule->transaction_method,
-                            "customFieldID" => "Repayment_Method_Transactions"
-                        ]
-                    ]
-                ];
-            } else {
+            // if($loan_schedule->transaction_method != '') {
+            //     $repayment_data = [
+            //         "type" => "REPAYMENT",
+            //         "amount" =>$loan_schedule->liquidationAmount,
+            //         "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+            //         "method" => $loan_schedule->transactionChannel,
+            //         "customInformation" => [
+            //             [
+            //                 "value" => $loan_schedule->transaction_method,
+            //                 "customFieldID" => "Repayment_Method_Transactions"
+            //             ]
+            //         ]
+            //     ];
+            // } else {
                 $repayment_data = [
                     "type" => "REPAYMENT",
                     "amount" =>$loan_schedule->liquidationAmount,
                     "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
                 ];
-            }
+            // }
             
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
             
