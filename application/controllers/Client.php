@@ -600,7 +600,6 @@ class Client extends CI_Controller {
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->liquidationAmount, 2),
                     "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
-                    "notes" => "BEING Part-Liquidation of Bulk amount"
                 ];
             }
             
