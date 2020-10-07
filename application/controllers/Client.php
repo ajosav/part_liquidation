@@ -50,19 +50,19 @@ class Client extends CI_Controller {
             if($index == 0 ){
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "principalDue" => $loan_schedule->reducedPrincipal,
+                    "interestDue" => $repayment['interestDue'],
+                    "feesDue" => $repayment['feesDue'],
+                    "penaltyDue" => $repayment['penaltyDue'],
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($repayment['principalDue'], 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "principalDue" => $repayment['principalDue'],
+                    "interestDue" => $repayment['interestDue'],
+                    "feesDue" => $repayment['feesDue'],
+                    "penaltyDue" => $repayment['penaltyDue'],
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             }
@@ -96,9 +96,9 @@ class Client extends CI_Controller {
 
     //     for($i = 1; $i <= $nper; $i++) {
             
-    //         $interest = round(($initial_bal * ($rate / 100)), 2);
-    //         $principal = round(($monthly_payment - $interest), 2);
-    //         $new_balance = round(($initial_bal - $principal), 2);
+    //         $interest =($initial_bal * ($rate / 100));
+    //         $principal =($monthly_payment - $interest);
+    //         $new_balance =($initial_bal - $principal);
 
     //         $schedule[] = [
     //             'opening_balance' => $initial_bal,
@@ -445,19 +445,19 @@ class Client extends CI_Controller {
             if($index == 0 ){
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "principalDue" => $loan_schedule->reducedPrincipal,
+                    "interestDue" => $repayment['interestDue'],
+                    "feesDue" => $repayment['feesDue'],
+                    "penaltyDue" => $repayment['penaltyDue'],
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($repayment['principalDue'], 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "principalDue" => $repayment['principalDue'],
+                    "interestDue" => $repayment['interestDue'],
+                    "feesDue" => $repayment['feesDue'],
+                    "penaltyDue" => $repayment['penaltyDue'],
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             }
@@ -490,7 +490,7 @@ class Client extends CI_Controller {
             if($loan_schedule->transaction_method != '') {
                 $repayment_data = [
                     "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->liquidationAmount, 2),
+                    "amount" =>$loan_schedule->liquidationAmount,
                     "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
                     "method" => $loan_schedule->transactionChannel,
                     "customInformation" => [
@@ -503,7 +503,7 @@ class Client extends CI_Controller {
             } else {
                 $repayment_data = [
                     "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->liquidationAmount, 2),
+                    "amount" =>$loan_schedule->liquidationAmount,
                     "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
                 ];
             }
