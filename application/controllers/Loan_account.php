@@ -268,13 +268,15 @@ class Loan_account extends CI_Controller {
 
             $penalty_due = 0;
             $fees_due = 0;
+            $interest = 0;
             foreach($repayments as $repayment) {
                 $fees_due += ($repayment->feesDue - $repayment->feesPaid);
                 $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
-                
+                $interest += ($repayment->interestDue - $repayment->interestPaid);
             }
             $fees_due = $fees_due / $tenor;
             $penalty_due = $penalty_due / $tenor;
+            $interest = $penalty_due / $tenor;
 
             foreach($repayments as $index => $repayment) {
                 if($index <= $tenor) {
@@ -294,7 +296,7 @@ class Loan_account extends CI_Controller {
                     $new_schedule[] = [
                         "schedule_id" => $schedule_id,
                         "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => $schedule[$index-1]['interest'],
+                        "interestDue" => $interest,
                         "principalDue" => $schedule[$index-1]['principal'],
                         "dueDate" => $repayment->dueDate,
                         "penaltyDue" => $penalty_due,
