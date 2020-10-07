@@ -38,8 +38,8 @@ class Client extends CI_Controller {
         $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
         
 
-        $schedule_id = 'sch5f7ca55fe0cff';
-        $loan_id = '16334266';
+        $schedule_id = 'sch5f7d6d19d8432';
+        $loan_id = '30380087';
 
         $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
 
