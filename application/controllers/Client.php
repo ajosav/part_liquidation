@@ -487,9 +487,29 @@ class Client extends CI_Controller {
 
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
+        $has_late_repayment = $this->get_late_repayments($loan_id);
+
         $repayment_collections = [];
         foreach($repayments as $index => $repayment) {
-            if($index == 0 ){
+            if($index == 0 && !empty($has_late_repayment)) {
+                $repayment_collections[] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($repayment['principalDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } elseif ($index == 1 && !empty($has_late_repayment)) {
+                $repayment_collections[] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } elseif($index == 0  && empty($has_late_repayment)){
                 $repayment_collections[] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => round($loan_schedule->reducedPrincipal, 2),
@@ -517,14 +537,36 @@ class Client extends CI_Controller {
         $penalty_sum = array_sum(array_column($repayment_collections, 'penaltyDue'));
 
 
-        $newInterest =  ((float)$total_interest_due) - $interest_sum;
+        $newInterest =  ((float)$total_interest_due - $interest_sum);
         $newPrincipal = ((float) $principalBal - $principal_sum);
         $newFees = ((float) $feesBal - $fees_sum);
         $newPenalty = ((float) $penaltyBal - $penalty_sum);
 
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
-            if($index == 0 ){
+            if($index == 0 && !empty($has_late_repayment)) {
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($repayment['principalDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } elseif ($index == 1 && !empty($has_late_repayment)) {
+                $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
+                $interestDue = round($repayment['interestDue'], 2) + $newInterest;
+                $feesDue = round($repayment['feesDue'], 2) + $newFees;
+                $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => number_format((float) $principalDue, 2, '.', ''),
+                    "interestDue" => round($interestDue, 2),
+                    "feesDue" => round($feesDue, 2),
+                    "penaltyDue" => round($penaltyDue, 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } elseif($index == 0  && empty($has_late_repayment)){
                 $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
                 $interestDue = round($repayment['interestDue'], 2) + $newInterest;
                 $feesDue = round($repayment['feesDue'], 2) + $newFees;
@@ -774,6 +816,18 @@ class Client extends CI_Controller {
         }
 
         return $outstanding_repayments;
+    }
+
+    private function get_late_repayments($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
+        $available_tenor = [];
+        foreach($repayments as $repayment) {
+            if((string) $repayment->state == "LATE") {
+                $available_tenor[] = $repayment;
+            }
+        }
+
+        return $available_tenor;
     }
 
 }
