@@ -48,10 +48,12 @@ class Client extends CI_Controller {
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 ){
+                $first_int_due = $repayment['interestDue'] > 0.00 ? (round($repayment['interestDue'], 2) - 0.01) : 0;
+                $first_prin_due = $loan_schedule->reducedPrincipal > 0.00 ? (round($loan_schedule->reducedPrincipal, 2) - 0.01) : 0;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => (round($loan_schedule->reducedPrincipal, 2) - 0.01),
-                    "interestDue" => (round($repayment['interestDue'], 2) - 0.01),
+                    "principalDue" =>$first_prin_due,
+                    "interestDue" => $first_int_due,
                     "feesDue" => round($repayment['feesDue'], 2),
                     "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
@@ -443,10 +445,12 @@ class Client extends CI_Controller {
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 ){
+                $first_int_due = $repayment['interestDue'] > 0.00 ? (round($repayment['interestDue'], 2) - 0.01) : 0;
+                $first_prin_due = $loan_schedule->reducedPrincipal > 0.00 ? (round($loan_schedule->reducedPrincipal, 2) - 0.01) : 0;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => (round($loan_schedule->reducedPrincipal, 2)- 0.01),
-                    "interestDue" => (round($repayment['interestDue'], 2) - 0.01),
+                    "principalDue" =>$first_prin_due,
+                    "interestDue" => $first_int_due,
                     "feesDue" => round($repayment['feesDue'], 2),
                     "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
