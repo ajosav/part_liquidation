@@ -274,9 +274,10 @@ class Loan_account extends CI_Controller {
                 $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
                 $interest += ($repayment->interestDue - $repayment->interestPaid);
             }
+            // $this->Base_model->dd($interest);
             $fees_due = $fees_due / $tenor;
             $penalty_due = $penalty_due / $tenor;
-            $interest = $penalty_due / $tenor;
+            $interest = $interest / $tenor;
 
             foreach($repayments as $index => $repayment) {
                 if($index <= $tenor) {
