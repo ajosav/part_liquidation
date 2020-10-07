@@ -56,7 +56,7 @@ class Loan_account extends CI_Controller {
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
         $loan_id = $mambuPostBack['OBJECT_ID'];
-        // $loan_id = 30463851;
+        // $loan_id = 80000016;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
         // $loan_id = 40000133;
@@ -277,7 +277,7 @@ class Loan_account extends CI_Controller {
                 $penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
                 $total_interest_due += ($repayment->interestDue - $repayment->interestPaid);
             }
-            
+
             $fees_due = $fees_due / $tenor;
             $penalty_due = $penalty_due / $tenor;
 

@@ -38,12 +38,43 @@ class Client extends CI_Controller {
         $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
         
 
-        $schedule_id = 'sch5f7da9394e3d7';
-        $loan_id = '30380087';
+        $schedule_id = 'sch5f7dd7bccdf28';
+        $loan_id = '80000016';
 
         $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
 
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
+
+        $repayment_collections = [];
+        foreach($repayments as $index => $repayment) {
+            if($index == 0 ){
+                $repayment_collections[] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } else {
+                $repayment_collections[] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($repayment['principalDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            }
+           
+        }
+
+        $principal_sum = array_sum(array_column($repayment_collections, 'principalDue'));
+        $interest_sum = array_sum(array_column($repayment_collections, 'interestDue'));
+
+        $newInterest =  293580.46 - $interest_sum;
+        $newPrincipal = 293156.25 - $principal_sum;
+        $this->Base_model->dd($principal_sum + $newPrincipal);
 
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
@@ -303,14 +334,24 @@ class Client extends CI_Controller {
         $this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], ['status' => 4]);
 
         $this->send_otp($client_phone, $client_email, $client_fname);
-       
+        $loanDetails = $this->mambu_base_url."api/loans/{$loan_id}?fullDetails=true";
+        $loanAccount = json_decode($this->Base_model->call_mambu_api_get($loanDetails), TRUE);
+        $total_interest_due = 0;
+        $repayments_interest_due = $this->get_outstanding_repayments($loan_id);
+        foreach($repayments_interest_due as $repayment) {
+            $total_interest_due += ($repayment->interestDue - $repayment->interestPaid);
+        }
+
+              
         $data = [
             "schedule_id" => $schedule_id,
             "client_fname" => $client_fname,
             "client_lname" => $client_lname,
             "client_email" => $client_email,
             "phone" => $this->maskPhoneNumber($client_phone),
-            "loan_id" => $loan_id
+            "loan_id" => $loan_id,
+            "loanDetails" => $loanAccount,
+            "totalInterestDue" => $total_interest_due
         ];
         $this->load->view('part_liquidation/meta_link');
         $this->load->view('part_liquidation/client/otp_verification', $data); 
@@ -366,6 +407,8 @@ class Client extends CI_Controller {
         $client_fname = $this->input->post('client_fname');
         $client_lname = $this->input->post('client_lname');
         $client_email = $this->input->post('client_email');
+        $total_interest_due = $this->input->post('totalInterestDue');
+        $principalBal = $this->input->post('principalBal');
         $loan_id = $this->input->post('loan_id');
         $otp_code = $this->input->post('otp');
 
@@ -440,10 +483,10 @@ class Client extends CI_Controller {
 
         $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
 
-        $collect_repayment = [];
+        $repayment_collections = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 ){
-                $collect_repayment['repayments'][] = [
+                $repayment_collections[] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => round($loan_schedule->reducedPrincipal, 2),
                     "interestDue" => round($repayment['interestDue'], 2),
@@ -452,7 +495,7 @@ class Client extends CI_Controller {
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
-                $collect_repayment['repayments'][] = [
+                $repayment_collections[] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => round($repayment['principalDue'], 2),
                     "interestDue" => round($repayment['interestDue'], 2),
@@ -463,10 +506,52 @@ class Client extends CI_Controller {
             }
            
         }
+
+        $principal_sum = array_sum(array_column($repayment_collections, 'principalDue'));
+        $interest_sum = array_sum(array_column($repayment_collections, 'interestDue'));
+
+
+        $newInterest =  ((float)$total_interest_due) - $interest_sum;
+        $newPrincipal = ((float) $principalBal - $principal_sum);
+
+        $collect_repayment = [];
+        foreach($repayments as $index => $repayment) {
+            if($index == 0 ){
+                $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
+                $interestDue = round($repayment['interestDue'], 2) + $newInterest;
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => $principalDue,
+                    "interestDue" => $interestDue,
+                    // "feesDue" => round($repayment['feesDue'], 2),
+                    // "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            } else {
+                $collect_repayment['repayments'][] = [
+                    "encodedKey" => $repayment['encodedKey'],
+                    "principalDue" => round($repayment['principalDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    // "feesDue" => round($repayment['feesDue'], 2),
+                    // "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "parentAccountKey" => $repayment['parentAccountKey'],
+                ];
+            }
+           
+        }
       
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
-        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
 
+        $data = [
+            "message" => "rescheduling loan {$loan_id}",
+            "details" => json_encode($collect_repayment),
+            "schedule_id" => $schedule_id,
+            "loan_id" => $loan_id,
+            "date" => date('Y-m-d H:i:s')
+        ];
+
+        $this->Base_model->create('liquidation_log', $data);
+        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
 
         if(isset($response['returnCode'])) {
             $data = [
@@ -627,10 +712,11 @@ class Client extends CI_Controller {
         // return $mask_number;
     }
     
-    private function get_outstanding_repayments($repayments) {
+    private function get_outstanding_repayments($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
         $outstanding_repayments = [];
         foreach($repayments as $repayment) {
-            if((string) $repayment['state'] != "PAID") {
+            if((string) $repayment->state != "PAID" && $repayment->state != "GRACE") {
                 $outstanding_repayments[] = $repayment;
             }
         }
