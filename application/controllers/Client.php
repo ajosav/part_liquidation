@@ -37,6 +37,7 @@ class Client extends CI_Controller {
         // $rate = 4.740; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.01 / 100);
         $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
         
+        // $this->Base_model->dd(number_format((float) 25000, 2, '.', ''));
 
         $schedule_id = 'sch5f7dd7bccdf28';
         $loan_id = '80000016';
@@ -530,7 +531,7 @@ class Client extends CI_Controller {
                 $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($principalDue, 2),
+                    "principalDue" => number_format((float) $principalDue, 2, '.', ''),
                     "interestDue" => round($interestDue, 2),
                     "feesDue" => round($feesDue, 2),
                     "penaltyDue" => round($penaltyDue, 2),
