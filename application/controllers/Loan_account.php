@@ -313,7 +313,7 @@ class Loan_account extends CI_Controller {
                     $new_schedule[] = [
                         "schedule_id" => $schedule_id,
                         "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => $late_repayment_interest,
+                        "interestDue" => $interest_overdue,
                         "principalDue" => 0,
                         "dueDate" => $repayment->dueDate,
                         "penaltyDue" => 0,
