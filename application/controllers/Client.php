@@ -469,9 +469,9 @@ class Client extends CI_Controller {
 
 
         $newInterest =  ((float)$total_interest_due - $interest_sum);
-        $newPrincipal = ((float) $principalBal - $principal_sum);
-        $newFees = ((float) $feesBal - $fees_sum);
-        $newPenalty = ((float) $penaltyBal - $penalty_sum);
+        // $newPrincipal = ((float) $principalBal - $principal_sum);
+        // $newFees = ((float) $feesBal - $fees_sum);
+        // $newPenalty = ((float) $penaltyBal - $penalty_sum);
 
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
@@ -486,43 +486,37 @@ class Client extends CI_Controller {
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } elseif ($index == 1 && !empty($has_late_repayment)) {
-                $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
-                $interestDue = round($repayment['interestDue'], 2) + $newInterest;
-                $feesDue = round($repayment['feesDue'], 2) + $newFees;
-                $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => number_format((float) $principalDue, 2, '.', ''),
-                    "interestDue" => round($interestDue, 2),
-                    "feesDue" => round($feesDue, 2),
-                    "penaltyDue" => round($penaltyDue, 2),
+                    "principalDue" =>round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" =>  round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
                 
             } elseif($index == 0  && empty($has_late_repayment)){
-                $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
-                $fix_interest = round($repayment['interestDue'], 2);
+
+                // $fix_interest = round($repayment['interestDue'], 2);
                 
-                if($fix_interest > 0) {
-                    $interestDue = $fix_interest + $newInterest;
-                } else {
-                    $interest_fix = $newInterest / (count($repayments) - 2);
-                }
-                $feesDue = round($repayment['feesDue'], 2) + $newFees;
-                $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
+                // if($fix_interest > 0) {
+                //     $interestDue = $fix_interest + $newInterest;
+                // } else {
+                //     $interest_fix = $newInterest / (count($repayments) - 2);
+                // }
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => number_format((float) $principalDue, 2, '.', ''),
-                    "interestDue" => round($interestDue, 2),
-                    "feesDue" => round($feesDue, 2),
-                    "penaltyDue" => round($penaltyDue, 2),
+                    "principalDue" =>  round($loan_schedule->reducedPrincipal, 2),
+                    "interestDue" => round($repayment['interestDue'], 2),
+                    "feesDue" => round($repayment['feesDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => round($repayment['principalDue'], 2),
-                    "interestDue" => round($repayment['interestDue'], 2) + $interest_fix,
+                    "interestDue" => round($repayment['interestDue'], 2),
                     "feesDue" => round($repayment['feesDue'], 2),
                     "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
