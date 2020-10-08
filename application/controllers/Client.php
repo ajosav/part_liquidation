@@ -514,8 +514,10 @@ class Client extends CI_Controller {
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" =>  number_format((float) $loan_schedule->reducedPrincipal, 2, '.', ''),
                     "interestDue" =>  number_format((float) $repayment['interestDue'], 2, '.', ''),
-                    "feesDue" => number_format((float) $feesDue, 2, '.', ''),
-                    "penaltyDue" => number_format((float) $penaltyDue, 2, '.', ''),
+                    // "feesDue" => number_format((float) $feesDue, 2, '.', ''),
+                    // "penaltyDue" => number_format((float) $penaltyDue, 2, '.', ''),
+                    "feesDue" => $repayment['feesDue'],
+                    "penaltyDue" => $repayment['penaltyDue'],
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
@@ -523,8 +525,10 @@ class Client extends CI_Controller {
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => number_format((float) $repayment['principalDue'], 2, '.', ''),
                     "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
-                    "feesDue" => number_format((float) $repayment['feesDue'], 2, '.', ''),
-                    "penaltyDue" => number_format((float) $repayment['penaltyDue'], 2, '.', ''),
+                    // "feesDue" => number_format((float) $repayment['feesDue'], 2, '.', ''),
+                    // "penaltyDue" => number_format((float) $repayment['penaltyDue'], 2, '.', ''),
+                    "feesDue" => $repayment['feesDue'],
+                    "penaltyDue" => $repayment['penaltyDue'],
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             }
