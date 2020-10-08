@@ -544,6 +544,7 @@ class Client extends CI_Controller {
 
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
+            $interest_fix = 0;
             if($index == 0 && !empty($has_late_repayment)) {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
@@ -566,9 +567,16 @@ class Client extends CI_Controller {
                     "penaltyDue" => round($penaltyDue, 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
+                
             } elseif($index == 0  && empty($has_late_repayment)){
                 $principalDue = round($loan_schedule->reducedPrincipal, 2) + $newPrincipal;
-                $interestDue = round($repayment['interestDue'], 2) + $newInterest;
+                $fix_interest = round($repayment['interestDue'], 2);
+                
+                if($fix_interest > 0) {
+                    $interestDue = $fix_interest + $newInterest;
+                } else {
+                    $interest_fix = $newInterest / (count($repayments) - 2);
+                }
                 $feesDue = round($repayment['feesDue'], 2) + $newFees;
                 $penaltyDue = round($repayment['penaltyDue'], 2) + $newPenalty;
                 $collect_repayment['repayments'][] = [
@@ -583,7 +591,7 @@ class Client extends CI_Controller {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => round($repayment['principalDue'], 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
+                    "interestDue" => round($repayment['interestDue'], 2) + $interest_fix,
                     "feesDue" => round($repayment['feesDue'], 2),
                     "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
@@ -591,7 +599,7 @@ class Client extends CI_Controller {
             }
            
         }
-      
+
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
 
         $data = [
