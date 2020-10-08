@@ -345,7 +345,7 @@ class Loan_account extends CI_Controller {
                     $new_schedule[] = [
                         "schedule_id" => $schedule_id,
                         "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => $interest,
+                        "interestDue" => $schedule[$index-1]['interest'],
                         "principalDue" => $schedule[$index-1]['principal'],
                         "dueDate" => $repayment->dueDate,
                         "penaltyDue" => $new_penalty_due,
@@ -526,15 +526,21 @@ class Loan_account extends CI_Controller {
     function calculateSchedule($rate, $nper, $pv, $fee_rate) {
         $opening_bal = $this->openingBal($pv, $fee_rate);
         $monthly_payment = $this->getMonthlyPayment($rate, $nper, $opening_bal);
+        $schedule = [];
 
         $initial_bal = $opening_bal; 
     
 
         for($i = 1; $i <= $nper; $i++) {
             
-            $interest = $initial_bal * ($rate / 100);
-            $principal = $monthly_payment - $interest;
-            $new_balance = $initial_bal - $principal;
+
+            $interest = round(($initial_bal * ($rate / 100)), 2);
+            if($i == $nper) {
+                $principal = $initial_bal;
+            } else {
+                $principal = round(($monthly_payment - $interest), 2);
+            }
+            $new_balance = round(($initial_bal - $principal), 2);
 
             $schedule[] = [
                 'opening_balance' => $initial_bal,
@@ -549,6 +555,7 @@ class Loan_account extends CI_Controller {
 
         return $schedule;
     }
+
 
     function getMonthlyPayment($interest, $tenure, $PV, $FV = 0.00, $type = 0){
         $interest = ($interest / 100);

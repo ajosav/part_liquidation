@@ -35,129 +35,60 @@ class Client extends CI_Controller {
 
     public function index() {
         // $rate = 4.740; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.01 / 100);
-        $rate = 13.81; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+        $rate = 13.81; $nper = 6; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+
+        $schedule = $this->calculateSchedule($rate, $nper, $pv, $fv, $type, $fee_rate);
+
+        $this->Base_model->dd($schedule);
         
-        // $this->Base_model->dd(number_format((float) 25000, 2, '.', ''));
-
-        $schedule_id = 'sch5f7dd7bccdf28';
-        $loan_id = '80000016';
-
-        $loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id]);
-
-        $repayments = $this->Base_model->findWhere('repayment_schedule', ['schedule_id' => $schedule_id]);
-
-        $repayment_collections = [];
-        foreach($repayments as $index => $repayment) {
-            if($index == 0 ){
-                $repayment_collections[] = [
-                    "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
-                    "parentAccountKey" => $repayment['parentAccountKey'],
-                ];
-            } else {
-                $repayment_collections[] = [
-                    "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($repayment['principalDue'], 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
-                    "parentAccountKey" => $repayment['parentAccountKey'],
-                ];
-            }
-           
-        }
-
-        $principal_sum = array_sum(array_column($repayment_collections, 'principalDue'));
-        $interest_sum = array_sum(array_column($repayment_collections, 'interestDue'));
-
-        $newInterest =  293580.46 - $interest_sum;
-        $newPrincipal = 293156.25 - $principal_sum;
-        $this->Base_model->dd($principal_sum + $newPrincipal);
-
-        $collect_repayment = [];
-        foreach($repayments as $index => $repayment) {
-            if($index == 0 ){
-                $collect_repayment['repayments'][] = [
-                    "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($loan_schedule->reducedPrincipal, 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
-                    "parentAccountKey" => $repayment['parentAccountKey'],
-                ];
-            } else {
-                $collect_repayment['repayments'][] = [
-                    "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => round($repayment['principalDue'], 2),
-                    "interestDue" => round($repayment['interestDue'], 2),
-                    "feesDue" => round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
-                    "parentAccountKey" => $repayment['parentAccountKey'],
-                ];
-            }
-           
-        }
-        return $this->output
-        ->set_content_type('application/json')
-        ->set_status_header(400)
-        ->set_output(
-            json_encode($collect_repayment)
-        );
-
-
-      
-        $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
-        $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
-
         
-        $this->Base_model->dd($collect_repayment);
-       
-        // echo $monthly_payment;
     }
 
-    // function calculateSchedule($rate, $nper, $pv, $fv, $type, $fee_rate) {
-    //     $opening_bal = $this->openingBal($pv, $fee_rate);
-    //     $monthly_payment = $this->getMonthlyPayment($rate, $nper, $opening_bal);
-    //     $schedule = [];
+    function calculateSchedule($rate, $nper, $pv, $fv, $type, $fee_rate) {
+        $opening_bal = $this->openingBal($pv, $fee_rate);
+        $monthly_payment = $this->getMonthlyPayment($rate, $nper, $opening_bal);
+        $schedule = [];
 
-    //     $initial_bal = $opening_bal; 
+        $initial_bal = $opening_bal; 
     
 
-    //     for($i = 1; $i <= $nper; $i++) {
+        for($i = 1; $i <= $nper; $i++) {
             
-    //         $interest = round(($initial_bal * ($rate / 100)), 2);
-    //         $principal = round(($monthly_payment - $interest), 2);
-    //         $new_balance = round(($initial_bal - $principal), 2);
 
-    //         $schedule[] = [
-    //             'opening_balance' => $initial_bal,
-    //             'monthly_payment' => $monthly_payment,
-    //             'principal' => $principal,
-    //             'interest' => $interest,
-    //             'balance' => $new_balance,
-    //         ];
+            $interest = round(($initial_bal * ($rate / 100)), 2);
+            if($i == $nper) {
+                $principal = $initial_bal;
+            } else {
+                $principal = round(($monthly_payment - $interest), 2);
+            }
+            $new_balance = round(($initial_bal - $principal), 2);
 
-    //         $initial_bal = $new_balance > 0 ? $new_balance : 0;            
-    //     }
+            $schedule[] = [
+                'opening_balance' => $initial_bal,
+                'monthly_payment' => $monthly_payment,
+                'principal' => $principal,
+                'interest' => $interest,
+                'balance' => $new_balance,
+            ];
 
-    //     return $schedule;
-    // }
+            $initial_bal = $new_balance > 0 ? $new_balance : 0;            
+        }
 
-    // function getMonthlyPayment($interest, $tenure, $PV, $FV = 0.00, $type = 0){
-    //     $interest = ($interest / 100);
-    //     $xp = pow((1 + $interest), $tenure);
-    //     return (
-    //         $PV * $interest * $xp / ($xp - 1) + $interest / ($xp - 1) * $FV) *
-    //         ($type == 0 ? 1 : 1 / ($interest + 1)
-    //     );
-    // }
+        return $schedule;
+    }
 
-    // function openingBal($amount, $feeRate) {
-    //     return $amount * (1 + $feeRate);
-    // }
+    function getMonthlyPayment($interest, $tenure, $PV, $FV = 0.00, $type = 0){
+        $interest = ($interest / 100);
+        $xp = pow((1 + $interest), $tenure);
+        return (
+            $PV * $interest * $xp / ($xp - 1) + $interest / ($xp - 1) * $FV) *
+            ($type == 0 ? 1 : 1 / ($interest + 1)
+        );
+    }
+
+    function openingBal($amount, $feeRate) {
+        return $amount * (1 + $feeRate);
+    }
 
    
     public function loan_schedule($url = "") {
@@ -651,6 +582,7 @@ class Client extends CI_Controller {
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->liquidationAmount, 2),
                     "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+                    "notes" => "BEING Part-Liquidation of Bulk amount"
                 ];
             }
             
@@ -660,7 +592,8 @@ class Client extends CI_Controller {
                 $repayment_data = [
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->liquidationAmount, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate))
+                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+                    "notes" => "BEING Part-Liquidation of Bulk amount",
                 ];
                 $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
                 if(isset($response['returnCode'])) {
