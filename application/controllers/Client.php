@@ -482,7 +482,7 @@ class Client extends CI_Controller {
                     "principalDue" => round($repayment['principalDue'], 2),
                     "interestDue" => round($repayment['interestDue'], 2),
                     "feesDue" =>  round($repayment['feesDue'], 2),
-                    "penaltyDue" => round($repayment['interestDue'], 2),
+                    "penaltyDue" => round($repayment['penaltyDue'], 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } elseif ($index == 1 && !empty($has_late_repayment)) {
@@ -509,12 +509,13 @@ class Client extends CI_Controller {
                 // }
                 $feesDue = round($repayment['feesDue']) + $newFees;
                 $penaltyDue = round($repayment['penaltyDue']) + $newPenalty;
+
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" =>  round($loan_schedule->reducedPrincipal, 2),
-                    "interestDue" => round($penaltyDue, 2),
+                    "interestDue" => $repayment['interestDue'],
                     "feesDue" => round($feesDue, 2),
-                    "penaltyDue" => round($repayment['penaltyDue'], 2),
+                    "penaltyDue" => round($penaltyDue, 2),
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } else {
