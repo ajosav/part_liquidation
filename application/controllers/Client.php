@@ -547,12 +547,6 @@ class Client extends CI_Controller {
            
         }
 
-        // return $this->output
-        // ->set_content_type('application/json')
-        // ->set_status_header(400)
-        // ->set_output(
-        //     json_encode($collect_repayment)
-        // );
 
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
 
