@@ -348,7 +348,7 @@ class Loan_account extends CI_Controller {
                 foreach($late_repayments_only as $repayment) {
                     $late_repayment_interest += $repayment->interestDue - $repayment->interestPaid;
                 }
-
+            
                 foreach($late_repayments_only as $repayment) {
                     $new_schedule[] = [
                         "schedule_id" => $schedule_id,
