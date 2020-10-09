@@ -476,7 +476,7 @@ class Client extends CI_Controller {
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
             if($index == 0 && !empty($has_late_repayment)) {
-                $collect_repayment[] = [
+                $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => number_format((float) $repayment['principalDue'], 2, '.', ''),
                     "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
@@ -485,7 +485,7 @@ class Client extends CI_Controller {
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } elseif ($index == 1 && !empty($has_late_repayment)) {
-                $collect_repayment[] = [
+                $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => number_format((float) $loan_schedule->reducedPrincipal, 2, '.', ''),
                     "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
@@ -494,7 +494,7 @@ class Client extends CI_Controller {
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } elseif($index == 0  && empty($has_late_repayment)){
-                $collect_repayment[] = [
+                $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" =>  number_format((float) $loan_schedule->reducedPrincipal, 2, '.', ''),
                     "interestDue" =>  number_format((float) $repayment['interestDue'], 2, '.', ''),
