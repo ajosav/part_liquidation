@@ -309,19 +309,19 @@ class Loan_account extends CI_Controller {
                     $late_repayment_interest += $repayment->interestDue - $repayment->interestPaid;
                 }
 
-                foreach($late_repayments_only as $repayment) {
-                    $new_schedule[] = [
-                        "schedule_id" => $schedule_id,
-                        "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => $interest_overdue,
-                        "principalDue" => 0,
-                        "dueDate" => $repayment->dueDate,
-                        "penaltyDue" => 0,
-                        "feesDue" => 0,
-                        "parentAccountKey" => $repayment->parentAccountKey
-                    ];
-                    break;
-                }
+            //     foreach($late_repayments_only as $repayment) {
+            //         $new_schedule[] = [
+            //             "schedule_id" => $schedule_id,
+            //             "encodedKey" => $repayment->encodedKey,
+            //             "interestDue" => $interest_overdue,
+            //             "principalDue" => 0,
+            //             "dueDate" => $repayment->dueDate,
+            //             "penaltyDue" => 0,
+            //             "feesDue" => 0,
+            //             "parentAccountKey" => $repayment->parentAccountKey
+            //         ];
+            //         break;
+            //     }
 
 
             }            
@@ -381,7 +381,8 @@ class Loan_account extends CI_Controller {
                 "principalBalance" => $new_principal_bal,
                 "reducedPrincipal" => $reduced_principal,
                 "date_generated" => date('Y-m-d H:i:s'),
-                "outstandingBalance" => $outstanding_balance
+                "outstandingBalance" => $outstanding_balance,
+                "interestBalance" => $late_repayment_interest
             ];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {
