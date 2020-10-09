@@ -56,7 +56,7 @@ class Loan_account extends CI_Controller {
         $mambuPostBack = json_decode(base64_decode($signedRequestParts[1]), TRUE);
 
         $loan_id = $mambuPostBack['OBJECT_ID'];
-        // $loan_id = 30463851;
+        // $loan_id = 16333848;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
         // $loan_id = 40000133;
@@ -239,6 +239,7 @@ class Loan_account extends CI_Controller {
         $principal_due = $this->input->post('principal_due');
         $penalty_due = $this->input->post('penalty_due');
         $accountHolderKey = $this->input->post('accountHolderKey');
+        $productTypeKey = $this->input->post('productTypeKey');
         $fees_due = $this->input->post('fees_due');
         $payment_status = $this->input->post('payment_status');
         $transaction_date = $this->input->post('transaction_date');
@@ -249,7 +250,39 @@ class Loan_account extends CI_Controller {
         $outstanding_balance = ($interest_overdue + $penalty_due + $interest_accrued + $fees_due);
         // $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($fees_due) + ($principal_due);
 
-        // pass the outstanding balance to repayments endpoint to cover for debts
+        // collect all MBL loans 
+
+        $mbls = [
+            "8a9f86476efc4c9c016efc4c9c990001",
+            "8a9f86476efc4c9c016efc5aea5f0169",
+            "8a9f8708727950e1017279c41d4d0254",
+            "8a9f8617713edafa01713f3375220411",
+            "8a9f87007033e9ef0170343b577f0270",
+            "8a9f8617713edafa01713f05d8d40153",
+            "8a9f86626eeef668016eef4ad14d0511",
+            "8a9f8708727950e1017279bba8540096",
+            "8a9f86e071f58e890171f5ba08f50203",
+            "8a9f86e071f58e890171f5b091b900ad",
+            "8a9f86626eeef668016eef4a9a6e03d5",
+            "8a9f86626eeef668016eef4ad14d0511"
+        ];
+
+        $weekly_mbls = [
+            "8a9f86476efc4c9c016efc4c9c990001",
+            "8a9f86476efc4c9c016efc5aea5f0169",
+            "8a9f8708727950e1017279c41d4d0254",
+            "8a9f8617713edafa01713f3375220411",
+            "8a9f87007033e9ef0170343b577f0270",
+            "8a9f8617713edafa01713f05d8d40153"
+        ];
+        $monthly_mbls = [
+            "8a9f86626eeef668016eef4ad14d0511",
+            "8a9f8708727950e1017279bba8540096",
+            "8a9f86e071f58e890171f5ba08f50203",
+            "8a9f86e071f58e890171f5b091b900ad",
+            "8a9f86626eeef668016eef4a9a6e03d5",
+            "8a9f86626eeef668016eef4ad14d0511"
+        ];
 
         $repayments = $this->get_max_available_tenor($loan_id);
 
@@ -271,11 +304,18 @@ class Loan_account extends CI_Controller {
                     );
                 }
             }
-           
-        
             // create a new repayment schedule
-            $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate);
+            if(in_array($productTypeKey, $mbls)) {
+                if(in_array($productTypeKey, $weekly_mbls)) {
+                    $schedule = $this->calculateSchedule(($rate/4.3), $tenor, $new_principal_bal, $fee_rate);
+                } else {
+                    $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate);
+                }
+            } else {
+                $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate);
+            }
             
+            // $this->Base_model->dd($schedule);
             $schedule_id = uniqid('sch');
 
             $total_penalty_due = 0;
@@ -320,11 +360,10 @@ class Loan_account extends CI_Controller {
                         "feesDue" => 0,
                         "parentAccountKey" => $repayment->parentAccountKey
                     ];
-                    break;
                 }
 
 
-            }            
+            }
 
             $interest = $interest / $tenor;
             foreach($repayments as $index => $repayment) {

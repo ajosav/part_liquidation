@@ -35,7 +35,7 @@ class Client extends CI_Controller {
 
     public function index() {
         // $rate = 4.740; $nper = 12; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.01 / 100);
-        $rate = 13.81; $nper = 6; $pv = 500000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+        $rate = 11.83/4.3; $nper = 6; $pv =  219584.07; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
 
         $schedule = $this->calculateSchedule($rate, $nper, $pv, $fv, $type, $fee_rate);
 
@@ -469,7 +469,7 @@ class Client extends CI_Controller {
 
 
         // $newInterest =  ((float)$total_interest_due - $interest_sum);
-        // $newPrincipal = ((float) $principalBal - $principal_sum);
+        $newPrincipal = ((float) $principalBal - $principal_sum);
         $newFees = ((float) $feesBal - $fees_sum);
         $newPenalty = ((float) $penaltyBal - $penalty_sum);
 
@@ -485,9 +485,10 @@ class Client extends CI_Controller {
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             } elseif ($index == 1 && !empty($has_late_repayment)) {
+                $match_principal = $loan_schedule->reducedPrincipal;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => number_format((float) $loan_schedule->reducedPrincipal, 2, '.', ''),
+                    "principalDue" => number_format((float) $match_principal, 2, '.', ''),
                     "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
                     "feesDue" => $repayment['feesDue'],
                     "penaltyDue" => $repayment['penaltyDue'],
@@ -503,9 +504,10 @@ class Client extends CI_Controller {
                     "parentAccountKey" => $repayment['parentAccountKey'],
                 ];
             }  else {
+                $match_principal = $loan_schedule->reducedPrincipal;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => number_format((float) $repayment['principalDue'], 2, '.', ''),
+                    "principalDue" => number_format((float) $match_principal, 2, '.', ''),
                     "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
                     "feesDue" => number_format((float) $repayment['feesDue'], 2, '.', ''),
                     "penaltyDue" => number_format((float) $repayment['penaltyDue'], 2, '.', ''),
