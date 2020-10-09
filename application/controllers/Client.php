@@ -559,15 +559,44 @@ class Client extends CI_Controller {
         ];
         $this->Base_model->create('liquidation_log', $data);
 
+        if($loan_schedule->interestBalance > 0) {
+            $first_installment = $this->get_first_installment_position($loan_id);
+            $fee_payment = [
+                "type" => "fee",
+                "amount" => $loan_schedule->interestBalance,
+                "repayment" => $first_installment,
+                "notes" => "BEING INTEREST OVERDUE AT PARTLIQUIDATION $loan_schedule->liquidationAmount"
+            ];
 
-        $this->Base_model->dd($response);
+            $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $fee_payment), TRUE);
 
-        // $fee_payment = [
-        //     "type" => "fee",
-        //     "amount" => $loan_schedule->interestBalance,
-        //     "repayment" => 3,
-        //     "notes" => "BEING INTEREST OVERDUE AT PARTLIQUIDATION $loan_schedule->liquidationAmount"
-        // ];
+            if(isset($response['returnCode'])) {
+                $data = [
+                    "message" => "Failed to apply fee on loan {$loan_id}",
+                    "details" => json_encode($response['returnStatus']),
+                    "schedule_id" => $schedule_id,
+                    "loan_id" => $loan_id,
+                    "date" => date('Y-m-d H:i:s')
+                ];
+                $this->Base_model->create('liquidation_log', $data);
+                return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(
+                    json_encode($response['returnStatus'])
+                );
+            }
+
+            $data = [
+                "message" => "Fee successfully applied",
+                "details" => json_encode($response),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+
+        }
 
             // {
             //     "type":"FEE",
@@ -785,6 +814,15 @@ class Client extends CI_Controller {
         }
 
         return $available_tenor;
+    }
+    private function get_first_installment_position($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
+        foreach($repayments as $index => $repayment) {
+            if((string) $repayment->state == "PENDING") {
+               return $index + 1;
+            }
+        }
+
     }
 
 }
