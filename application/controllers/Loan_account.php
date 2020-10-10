@@ -421,7 +421,7 @@ class Loan_account extends CI_Controller {
                 "reducedPrincipal" => $reduced_principal,
                 "date_generated" => date('Y-m-d H:i:s'),
                 "outstandingBalance" => $outstanding_balance,
-                "interestBalance" => $late_repayment_interest
+                "interestBalance" => $interest_overdue
             ];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {
