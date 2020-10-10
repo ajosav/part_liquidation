@@ -19,6 +19,7 @@
                                                     <input type="hidden" name="max_tenor" id="max_tenor" value="<?= count($max_tenor) - 1 ?>">
                                                     <input type="hidden" name="accountHolderKey" id="accountHolderKey" value="<?= $accountHolderKey?>">
                                                     <input type="hidden" name="productTypeKey" id="productTypeKey" value="<?= $productTypeKey?>">
+                                                    <input type="hidden" name="interestBalance" id="productTypeKey" value="<?= $interestBalance?>">
                                                     <input type="email"  placeholder="Loan ID" name="loan_id" class="form-control" value="<?= $id ?>" title="Client Loan ID" readonly>
                                                 </div>
                                                 <div class="col-md-8">

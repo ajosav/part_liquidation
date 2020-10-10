@@ -235,6 +235,7 @@ class Loan_account extends CI_Controller {
         $interest_rate = $this->input->post('interest_rate');
         $interest_accrued = $this->input->post('interest_accrued');
         $interest_overdue = $this->input->post('interest_overdue');
+        $interest_balance = $this->input->post('interestBalance');
         $principal_balance = $this->input->post('principal_balance');
         $principal_due = $this->input->post('principal_due');
         $penalty_due = $this->input->post('penalty_due');
@@ -421,7 +422,7 @@ class Loan_account extends CI_Controller {
                 "reducedPrincipal" => $reduced_principal,
                 "date_generated" => date('Y-m-d H:i:s'),
                 "outstandingBalance" => $outstanding_balance,
-                "interestBalance" => $late_repayment_interest
+                "interestBalance" => $interest_balance
             ];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {
