@@ -590,6 +590,14 @@ class Client extends CI_Controller {
                 "notes" => "BEING INTEREST OVERDUE AT PARTLIQUIDATION $loan_schedule->liquidationAmount"
             ];
 
+            $data = [
+                "message" => "Applying fee on loan account",
+                "details" => json_encode($fee_payment),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $fee_payment), TRUE);
 
             if(isset($response['returnCode'])) {
@@ -620,13 +628,6 @@ class Client extends CI_Controller {
 
         }
 
-            // {
-            //     "type":"FEE",
-            //     "amount":"200",
-            //     "repayment": "3",
-            //     "notes":"test"
-            // }
-
         if($loan_schedule->liquidationAmount > 0) {
             $repayment_data = '';
             if($loan_schedule->transaction_method != '') {
@@ -651,7 +652,14 @@ class Client extends CI_Controller {
                     "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount"
                 ];
             }
-            
+            $data = [
+                "message" => "Applying Repayment on Loan Account",
+                "details" => json_encode($repayment_data),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
             
             if(isset($response['returnCode'])) {
