@@ -307,7 +307,7 @@ class Loan_account extends CI_Controller {
             // create a new repayment schedule
             if(in_array($productTypeKey, $mbls)) {
                 if(in_array($productTypeKey, $weekly_mbls)) {
-                    $schedule = $this->calculateSchedule(($rate/4.3), $tenor, $new_principal_bal, $fee_rate);
+                    $schedule = $this->calculateSchedule(($rate/5), $tenor, $new_principal_bal, $fee_rate);
                 } else {
                     $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate);
                 }
