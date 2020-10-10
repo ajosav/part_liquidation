@@ -533,7 +533,7 @@ class Client extends CI_Controller {
             }  else {
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
-                    "principalDue" => number_format((float) $repayment['pricipalDue'], 2, '.', ''),
+                    "principalDue" => number_format((float) $repayment['principalDue'], 2, '.', ''),
                     "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
                     "feesDue" => number_format((float) $repayment['feesDue'], 2, '.', ''),
                     "penaltyDue" => number_format((float) $repayment['penaltyDue'], 2, '.', ''),
@@ -552,7 +552,7 @@ class Client extends CI_Controller {
             "loan_id" => $loan_id,
             "date" => date('Y-m-d H:i:s')
         ];
-
+       
         $this->Base_model->create('liquidation_log', $data);
         $response = json_decode($this->Base_model->call_mambu_api_patch($reschedule_url, $collect_repayment), TRUE);
 
@@ -591,13 +591,14 @@ class Client extends CI_Controller {
             ];
 
             $data = [
-                "message" => "Applying fee on loan account",
-                "details" => json_encode($fee_payment),
+                "message" => "Apply fee on loan {$loan_id}",
+                "details" => json_encode($first_installment),
                 "schedule_id" => $schedule_id,
                 "loan_id" => $loan_id,
                 "date" => date('Y-m-d H:i:s')
             ];
             $this->Base_model->create('liquidation_log', $data);
+            
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $fee_payment), TRUE);
 
             if(isset($response['returnCode'])) {
@@ -652,13 +653,14 @@ class Client extends CI_Controller {
                     "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount"
                 ];
             }
-            $data = [
-                "message" => "Applying Repayment on Loan Account",
+             $data = [
+                "message" => "Entering Repayment for loan {$loan_id}",
                 "details" => json_encode($repayment_data),
                 "schedule_id" => $schedule_id,
                 "loan_id" => $loan_id,
                 "date" => date('Y-m-d H:i:s')
             ];
+       
             $this->Base_model->create('liquidation_log', $data);
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
             
