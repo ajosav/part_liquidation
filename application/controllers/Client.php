@@ -592,13 +592,13 @@ class Client extends CI_Controller {
 
             $data = [
                 "message" => "Apply fee on loan {$loan_id}",
-                "details" => json_encode($first_installment),
+                "details" => json_encode($fee_payment),
                 "schedule_id" => $schedule_id,
                 "loan_id" => $loan_id,
                 "date" => date('Y-m-d H:i:s')
             ];
             $this->Base_model->create('liquidation_log', $data);
-            
+
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $fee_payment), TRUE);
 
             if(isset($response['returnCode'])) {
