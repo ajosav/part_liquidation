@@ -20,6 +20,7 @@
                                     <input type="hidden" name="penaltyBal" value="<?= $loanDetails['penaltyBalance'] ?>">
                                     <input type="hidden" name="feesBal" value="<?=$loanDetails['feesBalance'] ?>">
                                     <input type="hidden" name="principalBal" value="<?= $loanDetails['principalBalance'] ?>">
+                                    <input type="hidden" name="principalDue" value="<?= $loanDetails['principalDue'] ?>">
                                     <input type="hidden" name="loan_amount" value="<?= $loanDetails['loanAmount'] ?>">
                                     <input type="hidden" name="totalInterestDue" value="<?= $totalInterestDue ?>">
                                     <input type="hidden" name="schedule_id" id="schedule_id" value="<?= $schedule_id?>">

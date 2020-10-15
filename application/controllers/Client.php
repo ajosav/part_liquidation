@@ -340,6 +340,7 @@ class Client extends CI_Controller {
         $client_email = $this->input->post('client_email');
         $total_interest_due = $this->input->post('totalInterestDue');
         $principalBal = $this->input->post('principalBal');
+        $mambu_principal_due = $this->input->post('principalDue');
         $penaltyBal = $this->input->post('penaltyBal');
         $feesBal = $this->input->post('feesBal');
         $loan_amount = $this->input->post('loan_amount');
@@ -453,7 +454,7 @@ class Client extends CI_Controller {
         $penalty_sum = array_sum(array_column($repayment_collections, 'penaltyDue'));
 
         // $newInterest =  ((float)$total_interest_due - $interest_sum);
-        $newPrincipal = ((float) $principalBal - $principal_sum);
+        $newPrincipal = ((float) $principalBal - ($principal_sum + $mambu_principal_due));
         $newFees = ((float) $feesBal - $fees_sum);
         $newPenalty = ((float) $penaltyBal - $penalty_sum);
 
