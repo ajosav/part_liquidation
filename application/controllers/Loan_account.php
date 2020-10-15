@@ -59,7 +59,7 @@ class Loan_account extends CI_Controller {
         // $loan_id = 16333848;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
-        // $loan_id = 16334269;
+        // $loan_id = 30380091;
 
 
 		$endpointURL = $this->mambu_base_url . "api/users/" . $encoded_key;
