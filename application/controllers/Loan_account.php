@@ -59,7 +59,7 @@ class Loan_account extends CI_Controller {
         // $loan_id = 16333848;
         $encoded_key = $mambuPostBack['USER_KEY'];
 
-        // $loan_id = 16334271;
+        // $loan_id = 16334269;
 
 
 		$endpointURL = $this->mambu_base_url . "api/users/" . $encoded_key;
@@ -132,7 +132,7 @@ class Loan_account extends CI_Controller {
         $data['client_id'] = $client_id;
         $data['mambu_user_key'] = $encoded_key;
         $data['next_repayment_due_date'] = $next_repayment;
-        $data['max_tenor'] = $this->get_max_available_tenor($loan_id);
+        $data['max_tenor'] = $this->get_all_future_repayments($loan_id);
         $data['outstanding_repayments'] = count($this->get_outstanding_repayments($loan_id));
         $data['transaction_channel'] = $gl_names;
         $data['transaction_method'] = $methods;
@@ -190,7 +190,35 @@ class Loan_account extends CI_Controller {
 
         return $available_tenor;
     }
+    private function get_all_late_repayments($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
+        $available_tenor = [];
+        foreach($repayments as $repayment) {
+            $due_date = date('Y-m-d', strtotime($repayment->dueDate));
+            $today = date('Y-m-d');
+            if((string) $repayment->state == "LATE" || $due_date < $today) {
+                $available_tenor[] = $repayment;
+            }
+        }
 
+        return $available_tenor;
+    }
+
+    private function get_all_future_repayments($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id));
+        $available_tenor = [];
+        foreach($repayments as $repayment) {
+            $due_date = date('Y-m-d', strtotime($repayment->dueDate));
+            $today = date('Y-m-d');
+            //  2020-10-15
+            // 2020-10-12
+            if((string) $repayment->state != "PAID" && (string) $repayment->state != "LATE" && $due_date > $today && (string) $repayment->state != "GRACE") {
+                $available_tenor[] = $repayment;
+            }
+        }
+
+        return $available_tenor;
+    }
 
     public function recalculate_schedule() {
         if($this->input->method() != 'post') {
@@ -230,7 +258,7 @@ class Loan_account extends CI_Controller {
 
         // 50k - (inte due 21k+18k)- (penalty=764+74)- (Int Accr/Fee 5590+ 90) - Principal bala (250k)
 
-
+        $liquidation_amount = (float) trim(str_replace(',','', preg_replace('/\s+/', '', $liquidation_amount)));
         $loan_id = $this->input->post('loan_id');
         $interest_rate = $this->input->post('interest_rate');
         $interest_accrued = $this->input->post('interest_accrued');
@@ -247,12 +275,11 @@ class Loan_account extends CI_Controller {
         $transction_channel = $this->input->post('transaction_channel');
         $transaction_method = $this->input->post('transaction_method');
 
-        // $principal_remainder = $liquidation_amount - ($interest_overdue) - ($penalty_due) - ($interest_accrued + $fees_due) - ($principal_due);
+        $total_due = $principal_due + $interest_overdue + $fees_due + $penalty_due;
         $outstanding_balance = ($interest_overdue + $penalty_due + $interest_accrued + $fees_due);
-        // $outstanding_balance = ($interest_overdue) + ($penalty_due) + ($fees_due) + ($principal_due);
+        // $outstanding_balance = ($interest_overdue    ) + ($penalty_due) + ($fees_due) + ($principal_due);
 
         // collect all MBL loans 
-
         $mbls = [
             "8a9f86476efc4c9c016efc4c9c990001",
             "8a9f86476efc4c9c016efc5aea5f0169",
@@ -285,26 +312,20 @@ class Loan_account extends CI_Controller {
             "8a9f86626eeef668016eef4ad14d0511"
         ];
 
-        $repayments = $this->get_max_available_tenor($loan_id);
+        $repayments = $this->get_all_future_repayments($loan_id);
+        
+        $get_first_repayment = $repayments[0];
 
         if($outstanding_balance <= $liquidation_amount) {
-            $reduced_principal = $liquidation_amount - $outstanding_balance;
-            $new_principal_bal =  abs($reduced_principal - $principal_balance);
-            // $spread_principal = ($new_principal_bal / $tenor);
+            $reduced_principal = $liquidation_amount - $total_due; // remaining bulk amount after entering late repayment
+            $principal_amount_to_deduct = $reduced_principal - ($interest_accrued + $get_first_repayment->feesDue); // Remaining principal after entering late repayments
+            // $principal_amount_to_deduct = $principal_due - $principal_after_late;
+            $new_principal_bal = $principal_balance - ($principal_due + $principal_amount_to_deduct);
+            // $new_principal_bal =  abs($reduced_principal - $principal_due);
             $new_schedule = [];
             $rate = $interest_rate;  $new_principal_bal; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             // $rate = 8.14; $new_tenure = 11; $new_principal_bal = 250000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
-            
-            if($tenor < $max_tenor) {
-                 if(isset($_POST['warning'])) {
-                    return $this->output
-                    ->set_content_type('application/json')
-                    ->set_status_header(200)
-                    ->set_output(
-                        json_encode(["status" => "warning", "message" => "Client DTI will be increased"])
-                    );
-                }
-            }
+
             // create a new repayment schedule
             if(in_array($productTypeKey, $mbls)) {
                 if(in_array($productTypeKey, $weekly_mbls)) {
@@ -315,7 +336,6 @@ class Loan_account extends CI_Controller {
             } else {
                 $schedule = $this->calculateSchedule($rate, $tenor, $new_principal_bal, $fee_rate);
             }
-            
             // $this->Base_model->dd($schedule);
             $schedule_id = uniqid('sch');
 
@@ -324,7 +344,7 @@ class Loan_account extends CI_Controller {
             $interest = 0;
 
             $total_interest_due = 0;
-            $repayments_interest_due = $this->get_outstanding_repayments($loan_id);
+            $repayments_interest_due = $this->get_all_future_repayments($loan_id);
             foreach($repayments_interest_due as $repayment) {
                 $total_fees_due += ($repayment->feesDue - $repayment->feesPaid);
                 $total_penalty_due += ($repayment->penaltyDue - $repayment->penaltyPaid);
@@ -334,37 +354,40 @@ class Loan_account extends CI_Controller {
             $new_fees_due = ($total_fees_due - $fees_due) / $tenor;
             $new_penalty_due = ($total_penalty_due - $penalty_due) / $tenor;
 
-            if($interest_accrued > 0 && $interest_overdue == 0) {
-                $interest = ($total_interest_due - $interest_accrued);
-            } elseif($interest_accrued == 0 && $interest_overdue > 0) {
-                $interest = ($total_interest_due - $interest_overdue);
-            } else {
-                $interest = $total_interest_due - ($interest_accrued + $interest_overdue);
-            }
+            // if($interest_accrued > 0 && $interest_overdue == 0) {
+            //     $interest = ($total_interest_due - $interest_accrued);
+            // } elseif($interest_accrued == 0 && $interest_overdue > 0) {
+            //     $interest = ($total_interest_due - $interest_overdue);
+            // } else {
+            //     $interest = $total_interest_due - ($interest_accrued + $interest_overdue);
+            // }
 
             // find late repayments to reschedule differently
             $late_repayment_interest = 0;
-            $late_repayments_only = $this->get_late_repayments($loan_id);
+            $late_repayments_only = $this->get_all_late_repayments($loan_id);
+
             if(!empty($late_repayments_only)) {
                 foreach($late_repayments_only as $repayment) {
                     $late_repayment_interest += $repayment->interestDue - $repayment->interestPaid;
                 }
             
-                foreach($late_repayments_only as $repayment) {
-                    $new_schedule[] = [
-                        "schedule_id" => $schedule_id,
-                        "encodedKey" => $repayment->encodedKey,
-                        "interestDue" => 0,
-                        "principalDue" => 0,
-                        "dueDate" => $repayment->dueDate,
-                        "penaltyDue" => 0,
-                        "feesDue" => 0,
-                        "parentAccountKey" => $repayment->parentAccountKey
-                    ];
-                }
+            //     foreach($late_repayments_only as $repayment) {
+            //         $new_schedule[] = [
+            //             "schedule_id" => $schedule_id,
+            //             "encodedKey" => $repayment->encodedKey,
+            //             "interestDue" => 0,
+            //             "principalDue" => 0,
+            //             "dueDate" => $repayment->dueDate,
+            //             "penaltyDue" => 0,
+            //             "feesDue" => 0,
+            //             "parentAccountKey" => $repayment->parentAccountKey
+            //         ];
+            //     }
 
 
             }
+            
+            // $restructured_fees_due = $fees_due - 
 
             $interest = $interest / $tenor;
             foreach($repayments as $index => $repayment) {
@@ -376,8 +399,8 @@ class Loan_account extends CI_Controller {
                             "interestDue" => $interest_accrued,
                             "principalDue" => 0,
                             "dueDate" => $repayment->dueDate,
-                            "penaltyDue" => $penalty_due,
-                            "feesDue" => $fees_due,
+                            "penaltyDue" => 0,
+                            "feesDue" => $repayment->feesDue,
                             "parentAccountKey" => $repayment->parentAccountKey
                         ];
                         continue;
@@ -388,8 +411,8 @@ class Loan_account extends CI_Controller {
                         "interestDue" => $schedule[$index-1]['interest'],
                         "principalDue" => $schedule[$index-1]['principal'],
                         "dueDate" => $repayment->dueDate,
-                        "penaltyDue" => $new_penalty_due,
-                        "feesDue" => $new_fees_due,
+                        "penaltyDue" => 0,
+                        "feesDue" => $max_tenor > $tenor ? $new_fees_due : $repayment->feesDue,
                         "parentAccountKey" => $repayment->parentAccountKey
                     ];
 
@@ -419,14 +442,14 @@ class Loan_account extends CI_Controller {
                 "transaction_method" => $transaction_method,
                 "tenure" => $tenor,
                 "principalBalance" => $new_principal_bal,
-                "reducedPrincipal" => $reduced_principal,
+                "reducedPrincipal" => $principal_amount_to_deduct,
                 "date_generated" => date('Y-m-d H:i:s'),
-                "outstandingBalance" => $outstanding_balance,
-                "interestBalance" => $interest_balance
+                "outstandingBalance" => $total_due,
+                "interestBalance" => $reduced_principal //new reduced principal
             ];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {
-            
+
                 if($this->Base_model->createBatch('repayment_schedule', $new_schedule)) {
                     return $this->output
                     ->set_content_type('application/json')

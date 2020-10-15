@@ -12,7 +12,7 @@ class Client extends CI_Controller {
 		
         parent::__construct();
         
-        $this->team_mail = ["EObukohwo@renmoney.com"];
+        $this->team_mail = ["eobukohwo@renmoney.com"];
         $this->cc = ["jadebayo@renmoney.com"];
 		$this->config->load('renmoney');
 		$this->load->helper(array('form', 'url'));
@@ -424,38 +424,7 @@ class Client extends CI_Controller {
         $number_of_late_installments = count($has_late_repayment);
     
         foreach($repayments as $index => $repayment) {
-            if($number_of_late_installments > 0) {
-                if($index < $number_of_late_installments) {
-                    $repayment_collections[] = [
-                        "encodedKey" => $repayment['encodedKey'],
-                        "principalDue" =>  number_format((float) $repayment['principalDue'], 2, '.', ''),
-                        "interestDue" =>  number_format((float) $repayment['interestDue'], 2, '.', ''),
-                        "feesDue" => $repayment['feesDue'],
-                        "penaltyDue" => $repayment['penaltyDue'],
-                        "parentAccountKey" => $repayment['parentAccountKey'],
-                    ];
-                } elseif($index == $number_of_late_installments) {
-                    $repayment_collections[] = [
-                        "encodedKey" => $repayment['encodedKey'],
-                        "principalDue" => number_format((float) $loan_schedule->reducedPrincipal, 2, '.', ''),
-                        "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
-                        "feesDue" => $repayment['feesDue'],
-                        "penaltyDue" => $repayment['penaltyDue'],
-                        "parentAccountKey" => $repayment['parentAccountKey'],
-                    ];
-                } else {
-                    $repayment_collections[] = [
-                        "encodedKey" => $repayment['encodedKey'],
-                        "principalDue" => number_format((float) $repayment['principalDue'], 2, '.', ''),
-                        "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
-                        "feesDue" => number_format((float) $repayment['feesDue'], 2, '.', ''),
-                        "penaltyDue" => number_format((float) $repayment['penaltyDue'], 2, '.', ''),
-                        "parentAccountKey" => $repayment['parentAccountKey'],
-                    ];
-                }
-                continue;
-            }
-            elseif($index == 0  && empty($has_late_repayment)){
+            if($index == 0){
                 $repayment_collections[] = [
                     "encodedKey" => $repayment['encodedKey'],
                     "principalDue" => number_format((float) $loan_schedule->reducedPrincipal, 2, '.', ''),
@@ -490,37 +459,7 @@ class Client extends CI_Controller {
 
         $collect_repayment = [];
         foreach($repayments as $index => $repayment) {
-            if($number_of_late_installments > 0) {
-                if($index < $number_of_late_installments) {
-                    $collect_repayment['repayments'][] = [
-                        "encodedKey" => $repayment['encodedKey'],
-                        "principalDue" =>  number_format((float) $repayment['principalDue'], 2, '.', ''),
-                        "interestDue" =>  number_format((float) $repayment['interestDue'], 2, '.', ''),
-                        "feesDue" => $repayment['feesDue'],
-                        "penaltyDue" => $repayment['penaltyDue'],
-                        "parentAccountKey" => $repayment['parentAccountKey'],
-                    ];
-                } elseif($index == $number_of_late_installments) {
-                    $patch_principal = $loan_schedule->reducedPrincipal + $newPrincipal;
-                    $collect_repayment['repayments'][] = [
-                        "encodedKey" => $repayment['encodedKey'],
-                        "principalDue" => number_format((float) $patch_principal, 2, '.', ''),
-                        "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
-                        "feesDue" => $repayment['feesDue'],
-                        "penaltyDue" => $repayment['penaltyDue'],
-                        "parentAccountKey" => $repayment['parentAccountKey'],
-                    ];
-                } else {
-                    $collect_repayment['repayments'][] = [
-                        "encodedKey" => $repayment['encodedKey'],
-                        "principalDue" => number_format((float) $repayment['principalDue'], 2, '.', ''),
-                        "interestDue" => number_format((float) $repayment['interestDue'], 2, '.', ''),
-                        "feesDue" => number_format((float) $repayment['feesDue'], 2, '.', ''),
-                        "penaltyDue" => number_format((float) $repayment['penaltyDue'], 2, '.', ''),
-                        "parentAccountKey" => $repayment['parentAccountKey'],
-                    ];
-                }
-            } elseif($index == 0  && empty($has_late_repayment)){
+            if($index == 0){
                 $patch_principal = $loan_schedule->reducedPrincipal + $newPrincipal;
                 $collect_repayment['repayments'][] = [
                     "encodedKey" => $repayment['encodedKey'],
@@ -541,6 +480,53 @@ class Client extends CI_Controller {
                 ];
             }
            
+        }
+
+        
+        if($loan_schedule->outstandingBalance > 0) {
+            $repayment_data = [
+                "type" => "REPAYMENT",
+                "amount" => round($loan_schedule->outstandingBalance, 2),
+                "date" => date('Y-m-d'),
+                "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate"
+            ];
+            $data = [
+                "message" => "Entering late repayments for loan {$loan_id}",
+                "details" => json_encode($repayment_data),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+
+            $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
+
+            if(isset($response['returnCode'])) {
+                $data = [
+                    "message" => "Failed to pay late instalments {$loan_id}",
+                    "details" => json_encode($response['returnStatus']),
+                    "schedule_id" => $schedule_id,
+                    "loan_id" => $loan_id,
+                    "date" => date('Y-m-d H:i:s')
+                ];
+                $this->Base_model->create('liquidation_log', $data);
+                return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(
+                    json_encode($response['returnStatus'])
+                );
+            }
+
+            $data = [
+                "message" => "Late installments paid off",
+                "details" => json_encode($response),
+                "schedule_id" => $schedule_id,
+                "loan_id" => $loan_id,
+                "date" => date('Y-m-d H:i:s')
+            ];
+            $this->Base_model->create('liquidation_log', $data);
+
         }
 
         $reschedule_url = $this->mambu_base_url."api/loans/{$loan_id}/repayments";
@@ -581,63 +567,16 @@ class Client extends CI_Controller {
         ];
         $this->Base_model->create('liquidation_log', $data);
 
+
         if($loan_schedule->interestBalance > 0) {
-            $first_installment = $this->get_first_installment_position($loan_id);
-            $fee_payment = [
-                "type" => "fee",
-                "amount" => $loan_schedule->interestBalance,
-                "repayment" => $first_installment,
-                "notes" => "BEING INTEREST OVERDUE AT PARTLIQUIDATION $loan_schedule->liquidationAmount"
-            ];
-
-            $data = [
-                "message" => "Apply fee on loan {$loan_id}",
-                "details" => json_encode($fee_payment),
-                "schedule_id" => $schedule_id,
-                "loan_id" => $loan_id,
-                "date" => date('Y-m-d H:i:s')
-            ];
-            $this->Base_model->create('liquidation_log', $data);
-
-            $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $fee_payment), TRUE);
-
-            if(isset($response['returnCode'])) {
-                $data = [
-                    "message" => "Failed to apply fee on loan {$loan_id}",
-                    "details" => json_encode($response['returnStatus']),
-                    "schedule_id" => $schedule_id,
-                    "loan_id" => $loan_id,
-                    "date" => date('Y-m-d H:i:s')
-                ];
-                $this->Base_model->create('liquidation_log', $data);
-                return $this->output
-                ->set_content_type('application/json')
-                ->set_status_header(400)
-                ->set_output(
-                    json_encode($response['returnStatus'])
-                );
-            }
-
-            $data = [
-                "message" => "Fee successfully applied",
-                "details" => json_encode($response),
-                "schedule_id" => $schedule_id,
-                "loan_id" => $loan_id,
-                "date" => date('Y-m-d H:i:s')
-            ];
-            $this->Base_model->create('liquidation_log', $data);
-
-        }
-
-        if($loan_schedule->liquidationAmount > 0) {
             $repayment_data = '';
             if($loan_schedule->transaction_method != '') {
                 $repayment_data = [
                     "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->liquidationAmount, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
+                    "amount" => round($loan_schedule->interestBalance, 2),
+                    "date" => date('Y-m-d'),
                     "method" => $loan_schedule->transactionChannel,
-                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount",
+                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate",
                     "customInformation" => [
                         [
                             "value" => $loan_schedule->transaction_method,
@@ -648,9 +587,9 @@ class Client extends CI_Controller {
             } else {
                 $repayment_data = [
                     "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->liquidationAmount, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
-                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount"
+                    "amount" => round($loan_schedule->interestBalance, 2),
+                    "date" => date('Y-m-d'),
+                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate"
                 ];
             }
              $data = [
@@ -667,9 +606,9 @@ class Client extends CI_Controller {
             if(isset($response['returnCode'])) {
                 $repayment_data = [
                     "type" => "REPAYMENT",
-                    "amount" => round($loan_schedule->liquidationAmount, 2),
-                    "date" => date('Y-m-d', strtotime($loan_schedule->transactionDate)),
-                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount",
+                    "amount" => round($loan_schedule->interestBalance, 2),
+                    "date" => date('Y-m-d'),
+                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate",
                 ];
                 $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
                 if(isset($response['returnCode'])) {
@@ -762,6 +701,7 @@ class Client extends CI_Controller {
     }
 
     private function send_otp($client_phone, $client_email, $client_fname) {
+        // $client_email = "jadebayo@renmoney.com";
         $otp = rand(100000, 999999);
         $this->Base_model->create(
             "otp",
