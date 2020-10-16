@@ -177,7 +177,7 @@
                 crossDomain: true,
                 success: function(data) {
                     if(data.status == 'created') {
-                        var url = `${base_url}Loan_account/schedule_review/${data.schedule_id}`;
+                        var url = `Loan_account/schedule_review/${data.schedule_id}`;
                         successNotification(data.message, url);
                         // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
                     } else if (data.status == 'warning') {
@@ -231,11 +231,11 @@
             data: form,
             type: "POST",
             success: function(data) {
-                successNotification("Liquidation Schedule Successfully Declined", "https://www.renmoney.com");
+                successNotification("Bulk Amount Schedule Successfully Rejected", "https://www.renmoney.com", 'external');
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status == 200) {
-                    successNotification(XMLHttpRequest.responseText, "https://www.renmoney.com/");
+                    successNotification(XMLHttpRequest.responseText, "https://www.renmoney.com/", 'external');
                 } else {
                     Swal.fire("Error", XMLHttpRequest.responseText, "error");
                     $('.btn').button('reset');
@@ -281,12 +281,12 @@
                 data: form,
                 crossDomain: true,
                 success: function(data) {
-                    successNotification(data, "https://www.renmoney.com");
+                    successNotification(data, "https://www.renmoney.com", 'external');
                     // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if(XMLHttpRequest.status == 200) {
-                        successNotification(XMLHttpRequest.responseText, "https://www.renmoney.com");
+                        successNotification(XMLHttpRequest.responseText, "https://www.renmoney.com", 'external');
                         // window.location.reload();
                     } else {
                         otp_error.html(XMLHttpRequest.responseText);
@@ -355,8 +355,8 @@
             }
         }
 
-        function successNotification(message, redirectTo = '') {
-        let timerInterval
+        function successNotification(message, redirectTo = '', redirect_type = 'normal') {
+            let timerInterval
             Swal.fire({
                 title: 'Success!',
                 html: message,
@@ -375,9 +375,17 @@
             }).then((result) => {
                 /* Read more about handling dismissals below */
                 if (result.dismiss === Swal.DismissReason.timer) {
-                window.location.replace(base_url+redirectTo)
+                    if(redirect_type == 'normal') {
+                        window.location.replace(base_url+redirectTo)
+                    } else {
+                        window.location.replace(redirectTo)
+                    }
                 } else {
-                window.location.replace(base_url+redirectTo)
+                    if(redirect_type == 'normal') {
+                        window.location.replace(base_url+redirectTo)
+                    } else {
+                        window.location.replace(redirectTo)
+                    }
                 }
             })
         }
