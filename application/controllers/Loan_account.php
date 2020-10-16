@@ -314,11 +314,16 @@ class Loan_account extends CI_Controller {
 
         $repayments = $this->get_all_future_repayments($loan_id);
         
-        $get_first_repayment = $repayments[0];
+        if (empty($repayments)) {
+            $first_fees_due = 0;
+        } else {
+            $get_first_repayment = $repayments[0];
+            $first_fees_due = $get_first_repayment->feesDue;
+        }
 
         if($outstanding_balance <= $liquidation_amount) {
             $reduced_principal = $liquidation_amount - $total_due; // remaining bulk amount after entering late repayment
-            $principal_amount_to_deduct = $reduced_principal - ($interest_accrued + $get_first_repayment->feesDue); // Remaining principal after entering late repayments
+            $principal_amount_to_deduct = $reduced_principal - ($interest_accrued + $first_fees_due); // Remaining principal after entering late repayments
             // $principal_amount_to_deduct = $principal_due - $principal_after_late;
             $new_principal_bal = $principal_balance - ($principal_due + $principal_amount_to_deduct);
             // $new_principal_bal =  abs($reduced_principal - $principal_due);

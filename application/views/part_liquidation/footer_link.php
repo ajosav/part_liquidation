@@ -177,8 +177,9 @@
                 crossDomain: true,
                 success: function(data) {
                     if(data.status == 'created') {
-                        alert(data.message);
-                        location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
+                        var url = `${base_url}Loan_account/schedule_review/${data.schedule_id}`;
+                        successNotification(data.message, url);
+                        // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
                     } else if (data.status == 'warning') {
                         $('.btn').button('reset');
                         Swal.fire({
@@ -198,10 +199,10 @@
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status == 200) {
-                    alert(XMLHttpRequest.responseText);
+                    successNotification(XMLHttpRequest.responseText);
                     // window.location.reload();
                 } else {
-                    alert(XMLHttpRequest.responseText);
+                    Swal.fire("Error", XMLHttpRequest.responseText, "error")
                     $('.btn').button('reset');
                 }
                 }
@@ -217,7 +218,7 @@
         $('button#submit_rejection').click(function(e) {
             $('.btn').button('loading')
             if($('#rejection_reason').val() == '') {
-                alert('Please enter the reason for rejection');
+                Swal.fire('Error', 'Please enter the reason for rejection', 'error');
                 $('.btn').button('reset');
                 return;
             }
@@ -230,15 +231,13 @@
             data: form,
             type: "POST",
             success: function(data) {
-                alert("Liquidation Schedule Successfully Declined ");
-                window.location.replace("https://www.renmoney.com")
+                successNotification("Liquidation Schedule Successfully Declined", "https://www.renmoney.com");
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status == 200) {
-                    alert(XMLHttpRequest.responseText);
-                    window.location.replace("https://www.renmoney.com/");
+                    successNotification(XMLHttpRequest.responseText, "https://www.renmoney.com/");
                 } else {
-                    alert(XMLHttpRequest.responseText);
+                    Swal.fire("Error", XMLHttpRequest.responseText, "error");
                     $('.btn').button('reset');
                 }
             }
@@ -282,15 +281,12 @@
                 data: form,
                 crossDomain: true,
                 success: function(data) {
-                   alert(data);
-                   window.location.replace("https://www.renmoney.com")
+                    successNotification(data, "https://www.renmoney.com");
                     // location.href=`${base_url}Loan_account/schedule_review/${data.schedule_id}`;
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if(XMLHttpRequest.status == 200) {
-                        console.log(XMLHttpRequest)
-                        alert(XMLHttpRequest.responseText);
-                        window.location.replace("https://www.renmoney.com")
+                        successNotification(XMLHttpRequest.responseText, "https://www.renmoney.com");
                         // window.location.reload();
                     } else {
                         otp_error.html(XMLHttpRequest.responseText);
@@ -358,6 +354,34 @@
                 $("#trans_method_div").show();
             }
         }
+
+        function successNotification(message, redirectTo = '') {
+        let timerInterval
+            Swal.fire({
+                title: 'Success!',
+                html: message,
+                icon: 'success',
+                timer: 5000,
+                timerProgressBar: true,
+                willOpen: () => {
+                Swal.showLoading()
+                timerInterval = setInterval(() => {
+                    
+                }, 100)
+                },
+                onClose: () => {
+                clearInterval(timerInterval)
+                }
+            }).then((result) => {
+                /* Read more about handling dismissals below */
+                if (result.dismiss === Swal.DismissReason.timer) {
+                window.location.replace(base_url+redirectTo)
+                } else {
+                window.location.replace(base_url+redirectTo)
+                }
+            })
+        }
+
     });
 </script>
 <!-- Mirrored from bootstraplovers.com/templates/float-admin-v1.1/light-version/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 04 Apr 2017 15:23:24 GMT -->
