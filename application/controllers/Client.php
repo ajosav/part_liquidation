@@ -644,6 +644,9 @@ class Client extends CI_Controller {
         }
 
         $this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], ['status' => 5]);
+        if($this->find_remita_direct_debit($loan_id)) {
+            $this->update_remita_schedule($loan_id);
+        }
         $team_mail_body = '
             <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em>
                 <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
@@ -797,7 +800,7 @@ class Client extends CI_Controller {
 
     }
 
-    public function update_remita_schedule($loan_id) {
+    private function update_remita_schedule($loan_id) {
         $repayments = json_decode($this->Base_model->get_repayments($loan_id), TRUE);
         foreach($repayments as $repayment) {
             $status = '';
@@ -827,4 +830,28 @@ class Client extends CI_Controller {
         }
     }
 
+    private function find_remita_direct_debit($loan_id) {
+        $remita_debit = false;
+        $endpointURL = $this->mambu_base_url."api/loans/{$loan_id}?fullDetails=true";
+        $loanDetails = json_decode($this->Base_model->call_mambu_api_get($endpointURL), TRUE);
+        $customFields = $loanDetails['customFieldValues'];
+
+        foreach($customFields as $customField) {
+            $field = $customField['customField'];
+            if($field['id'] == 'Repayment_Method_Loan_Accounts') {
+                $selectOptions = $field['customFieldSelectionOptions'];
+                foreach($selectOptions as $option) {
+                    if(in_array('Direct Debit (Remita)', $option)) {
+                        $remita_debit = true;
+                        break;
+                    }
+                }
+            }
+            
+
+        }
+
+        return $remita_debit;
+    }
+ 
 }
