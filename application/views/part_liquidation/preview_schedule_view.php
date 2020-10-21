@@ -54,7 +54,7 @@
                                                                         echo "OTP Validation";
                                                                     break;
                                                                     default:
-                                                                        echo "Under Processing";
+                                                                        echo "Rescheduled";
                     
                                                                 } 
                                                         ?> "
