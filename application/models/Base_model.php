@@ -15,6 +15,8 @@ class Base_model extends CI_Model {
     public $mambu_base_url;
     public $debug = false;
 
+    private $renbroker_db;
+
     public function __construct()
     {
         parent::__construct();
@@ -22,6 +24,7 @@ class Base_model extends CI_Model {
 
         $this->load->config('renmoney');
         $this->load->database();
+        $this->renbroker_db = $this->load->database('renbrokerstaging', TRUE);
 
         $this->mambu_base_url = $this->config->item('rnm_mambu_base_url');
 
@@ -342,6 +345,20 @@ class Base_model extends CI_Model {
         }
 
         return $new_schedule;
+    }
+
+    public function selectAllFromRemita($table_name) {
+        return $this->renbroker_db->get($table_name)->result_array();
+    }
+
+    public function findWhereRemita($table_name,$condition) {
+        $this->renbroker_db->where($condition);
+		return $this->renbroker_db->get($table_name)->result_array();
+    }
+
+    public function updateRemitaRepayments($table_name, $condition, array $update_data = []) {
+		$this->renbroker_db->where($condition);
+		return $this->renbroker_db->update($table_name, $update_data);
     }
 
 }

@@ -797,4 +797,23 @@ class Client extends CI_Controller {
 
     }
 
+    public function update_remita_schedule($loan_id) {
+        $repayments = json_decode($this->Base_model->get_repayments($loan_id), TRUE);
+        foreach($repayments as $repayment) {
+            $status = '';
+            if($repayment['state'] == 'GRACE') {
+                $status = "CANCELLED";
+            } elseif($repayment['state'] == 'PARTIALLY_PAID') {
+                $status = "PART_PAID";
+            } elseif($repayment['state'] == 'PAID') {
+                $status = "PAID";
+            } elseif($repayment['state'] == 'LATE') {
+                $status = "PENDING";
+            } else {
+                $status = $repayment['state'];
+            }
+            $this->Base_model->updateRemitaRepayments('repayments', ['mambu_loan_id' => $loan_id, 'mambu_encodedkey' => $repayment['encodedKey']], ['status' => $status]);
+        }
+    }
+
 }

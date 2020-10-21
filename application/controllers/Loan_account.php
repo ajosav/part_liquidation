@@ -330,7 +330,7 @@ class Loan_account extends CI_Controller {
             $new_schedule = [];
             $rate = $interest_rate;  $new_principal_bal; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             // $rate = 8.14; $new_tenure = 11; $new_principal_bal = 250000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
-
+            $tenor = $tenor > 0 ? $tenor : 1;
             // create a new repayment schedule
             if(in_array($productTypeKey, $mbls)) {
                 if(in_array($productTypeKey, $weekly_mbls)) {
@@ -359,15 +359,6 @@ class Loan_account extends CI_Controller {
             $new_fees_due = ($total_fees_due - $fees_due) / $tenor;
             $new_penalty_due = ($total_penalty_due - $penalty_due) / $tenor;
 
-            // if($interest_accrued > 0 && $interest_overdue == 0) {
-            //     $interest = ($total_interest_due - $interest_accrued);
-            // } elseif($interest_accrued == 0 && $interest_overdue > 0) {
-            //     $interest = ($total_interest_due - $interest_overdue);
-            // } else {
-            //     $interest = $total_interest_due - ($interest_accrued + $interest_overdue);
-            // }
-
-            // find late repayments to reschedule differently
             $late_repayment_interest = 0;
             $late_repayments_only = $this->get_all_late_repayments($loan_id);
 
@@ -375,21 +366,6 @@ class Loan_account extends CI_Controller {
                 foreach($late_repayments_only as $repayment) {
                     $late_repayment_interest += $repayment->interestDue - $repayment->interestPaid;
                 }
-            
-            //     foreach($late_repayments_only as $repayment) {
-            //         $new_schedule[] = [
-            //             "schedule_id" => $schedule_id,
-            //             "encodedKey" => $repayment->encodedKey,
-            //             "interestDue" => 0,
-            //             "principalDue" => 0,
-            //             "dueDate" => $repayment->dueDate,
-            //             "penaltyDue" => 0,
-            //             "feesDue" => 0,
-            //             "parentAccountKey" => $repayment->parentAccountKey
-            //         ];
-            //     }
-
-
             }
             
             // $restructured_fees_due = $fees_due - 
