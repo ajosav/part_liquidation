@@ -812,7 +812,18 @@ class Client extends CI_Controller {
             } else {
                 $status = $repayment['state'];
             }
-            $this->Base_model->updateRemitaRepayments('repayments', ['mambu_loan_id' => $loan_id, 'mambu_encodedkey' => $repayment['encodedKey']], ['status' => $status]);
+
+            if($status == "PENDING") {
+                $remita_update = [
+                    'principal_due' => $repayment['principalDue'],
+                    'interest_due' => $repayment['interestDue'],
+                    'total_due' => $repayment['principalDue'] + $repayment['interestDue'],
+                    'status' => $status
+                ];
+                $this->Base_model->updateRemitaRepayments('repayments', ['mambu_loan_id' => $loan_id, 'mambu_encodedkey' => $repayment['encodedKey']], $remita_update);
+            } else {
+                $this->Base_model->updateRemitaRepayments('repayments', ['mambu_loan_id' => $loan_id, 'mambu_encodedkey' => $repayment['encodedKey']], ['status' => $status]);
+            }
         }
     }
 

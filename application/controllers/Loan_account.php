@@ -466,9 +466,24 @@ class Loan_account extends CI_Controller {
     public function schedule_review($schedule_id) {
         if($loan_schedule = $this->Base_model->find("loan_schedule", ['schedule_id' => $schedule_id])) {
             $repayment_schedule = $this->Base_model->selectRepayment($loan_schedule->schedule_id);
+            $mambu_loan_schedule = json_decode($this->Base_model->get_repayments($loan_schedule->loan_id), TRUE);
+            $mambu_repayment_due = 0;
+            $new_repayment_due = 0;
+            foreach($mambu_loan_schedule as $repayment) {
+                if($repayment['state'] == 'PENDING') {
+                    $mambu_repayment_due = $repayment['principalDue'] + $repayment['interestDue'] + $repayment['feesDue'] + $repayment['penaltyDue'];
+                }
+            }
+
+            foreach($repayment_schedule as $repayment) {
+                $new_repayment_due = $repayment['principalDue'] + $repayment['interestDue'] + $repayment['feesDue'] + $repayment['penaltyDue'];
+            break;
+            }
             $data = [
                 "loan_schedule" => $loan_schedule,
-                "repayment_schedule" => $repayment_schedule
+                "repayment_schedule" => $repayment_schedule,
+                "new_repayment_due" => $new_repayment_due,
+                "mambu_repayment_due" => $mambu_repayment_due,
             ];
             
             
