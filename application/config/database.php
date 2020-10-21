@@ -98,9 +98,9 @@ $query_builder = TRUE;
 
 $db['renbrokerstaging'] = array(
 	'dsn'	=> '',
-	'hostname' => '52.30.186.183',
-	'username' => 'Chinedu',
-	'password' => 'k3enSummer79',
+	'hostname' => 'localhost',
+	'username' => 'Peter',
+	'password' => 'P@ssword123',
 	'database' => 'remita',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
