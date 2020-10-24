@@ -1280,7 +1280,7 @@ class Client extends CI_Controller {
                 "type" => "REPAYMENT",
                 "amount" => round($loan_schedule->outstandingBalance, 2),
                 "date" => date('Y-m-d'),
-                "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate"
+                "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment"
             ];
             $data = [
                 "message" => "Entering late repayments for loan {$loan_id}",
