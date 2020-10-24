@@ -131,7 +131,7 @@
                                             <div class="form-group">
                                                 <div class="col-lg-12">
                                                     <label for="comment">comment</label>
-                                                    <textarea name="comment" id="comment" cols="15" rows="3" class="form-control"></textarea>
+                                                    <textarea name="comment" id="comment" cols="15" rows="3" class="form-control" maxlength="250"></textarea>
                                                 </div>
                                             </div>
 

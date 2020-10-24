@@ -427,7 +427,8 @@ class Loan_account extends CI_Controller {
                 "reducedPrincipal" => $principal_amount_to_deduct,
                 "date_generated" => date('Y-m-d H:i:s'),
                 "outstandingBalance" => $total_due,
-                "interestBalance" => $reduced_principal
+                "interestBalance" => $reduced_principal,
+                "comment" => $comment
             ];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {
