@@ -274,6 +274,7 @@ class Loan_account extends CI_Controller {
         $transaction_date = $this->input->post('transaction_date');
         $transction_channel = $this->input->post('transaction_channel');
         $transaction_method = $this->input->post('transaction_method');
+        $comment = $this->input->post('comment');
 
         $total_due = $principal_due + $interest_overdue + $fees_due + $penalty_due;
         $outstanding_balance = ($interest_overdue + $penalty_due + $interest_accrued + $fees_due);
@@ -426,7 +427,8 @@ class Loan_account extends CI_Controller {
                 "reducedPrincipal" => $principal_amount_to_deduct,
                 "date_generated" => date('Y-m-d H:i:s'),
                 "outstandingBalance" => $total_due,
-                "interestBalance" => $reduced_principal //new reduced principal
+                "interestBalance" => $reduced_principal,
+                "comment" => $comment
             ];
 
             if($this->Base_model->create('loan_schedule', $loan_schedule)) {

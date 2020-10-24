@@ -148,6 +148,7 @@ class Client extends CI_Controller {
         $client_lname = $this->input->post('client_lname');
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
+        $bulk_amount = $this->input->post('liquidationAmount');
         $loan_id = $this->input->post('loan_id');
         
         $status = 3;
@@ -164,7 +165,9 @@ class Client extends CI_Controller {
                 <p>Dear Team</p>
                 <p>Please note that '.$client_fname. ' '. $client_lname .' has rejected the New repayment schedule. </br>
                 Reason: '.$reject_state_prefix.' '.$rejection_state.'<br>
-                Details: '.$reason.'
+                Details: '.$reason.'<br>
+                Loan ID: '.$loan_id.'<br>
+                Bulk Amount: '.$bulk_amount.'
 
                 <p>
                 <b>Best Regards, <br>
@@ -1365,7 +1368,7 @@ class Client extends CI_Controller {
                     "amount" => round($loan_schedule->interestBalance, 2),
                     "date" => date('Y-m-d'),
                     "method" => $loan_schedule->transactionChannel,
-                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate",
+                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment",
                     "customInformation" => [
                         [
                             "value" => $loan_schedule->transaction_method,
@@ -1378,7 +1381,7 @@ class Client extends CI_Controller {
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->interestBalance, 2),
                     "date" => date('Y-m-d'),
-                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate"
+                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment"
                 ];
             }
              $data = [
@@ -1397,7 +1400,7 @@ class Client extends CI_Controller {
                     "type" => "REPAYMENT",
                     "amount" => round($loan_schedule->interestBalance, 2),
                     "date" => date('Y-m-d'),
-                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate",
+                    "notes" => "BEING Part-Liquidation of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment",
                 ];
                 $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
                 if(isset($response['returnCode'])) {
