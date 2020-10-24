@@ -523,36 +523,823 @@ class Loan_account extends CI_Controller {
         $content = "";
         if($loan_schedule->paymentStatus == "paid") {
             $content = '
-                <div style="font-family: verdana, Trebuchet ms, arial;">
-                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-                    <p>Dear '.$client_name.', </p>
-                    <p>Please see below the new repayment schedule based on your Bulk Payment Request<br>
-                    Bulk Amount: N'.$liquidationAmount.'<br>
-                    Loan ID:'.$loan.'<br>
-                    <a href='.$link.'>View Schedule</a> <br>
-                    Click on the Link above to Accept or Reject.<br>
-                    For any enquiries, contact hello@renmoney.com</p>
-                    <p><b>Thank you for choosing RenMoney MFB LTD.</b> </p>
-                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
-                    <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
-                </div>
+
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <!--[if !mso]><!-->
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <!--<![endif]-->
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="format-detection" content="telephone=no">
+                <meta name="x-apple-disable-message-reformatting">
+                <title></title>
+                <style type="text/css">
+                    #outlook a {
+                    padding: 0;
+                    }
+                
+                    .ReadMsgBody,
+                    .ExternalClass {
+                    width: 100%;
+                    }
+                
+                    .ExternalClass,
+                    .ExternalClass p,
+                    .ExternalClass td,
+                    .ExternalClass div,
+                    .ExternalClass span,
+                    .ExternalClass font {
+                    line-height: 100%;
+                    }
+                
+                    div[style*="margin: 14px 0"],
+                    div[style*="margin: 16px 0"] {
+                    margin: 0 !important;
+                    }
+                
+                    table,
+                    td {
+                    mso-table-lspace: 0;
+                    mso-table-rspace: 0;
+                    }
+                
+                    table,
+                    tr,
+                    td {
+                    border-collapse: collapse;
+                    }
+                
+                    body,
+                    td,
+                    th,
+                    p,
+                    div,
+                    li,
+                    a,
+                    span {
+                    -webkit-text-size-adjust: 100%;
+                    -ms-text-size-adjust: 100%;
+                    mso-line-height-rule: exactly;
+                    }
+                
+                    img {
+                    border: 0;
+                    outline: none;
+                    line-height: 100%;
+                    text-decoration: none;
+                    -ms-interpolation-mode: bicubic;
+                    }
+                
+                    a[x-apple-data-detectors] {
+                    color: inherit !important;
+                    text-decoration: none !important;
+                    }
+                
+                    body {
+                    margin: 0;
+                    padding: 0;
+                    width: 100% !important;
+                    -webkit-font-smoothing: antialiased;
+                    }
+                
+                    .pc-gmail-fix {
+                    display: none;
+                    display: none !important;
+                    }
+                
+                    @media screen and (min-width: 621px) {
+                    .pc-email-container {
+                        width: 620px !important;
+                    }
+                    }
+                </style>
+                <style type="text/css">
+                    @media screen and (max-width:620px) {
+                    .pc-sm-p-30 {
+                        padding: 30px !important
+                    }
+                    .pc-sm-p-18-30 {
+                        padding: 18px 30px !important
+                    }
+                    .pc-sm-p-20 {
+                        padding: 20px !important
+                    }
+                    .pc-sm-p-35-10-30 {
+                        padding: 35px 10px 30px !important
+                    }
+                    .pc-sm-mw-50pc {
+                        max-width: 50% !important
+                    }
+                    .pc-sm-p-15-10 {
+                        padding: 15px 10px !important
+                    }
+                    .pc-sm-ta-center {
+                        text-align: center !important
+                    }
+                    .pc-sm-mw-100pc {
+                        max-width: 100% !important
+                    }
+                    .pc-sm-p-20-20-0 {
+                        padding: 20px 20px 0 !important
+                    }
+                    .pc-sm-p-16-20-20 {
+                        padding: 16px 20px 20px !important
+                    }
+                    .pc-sm-m-0-auto {
+                        margin: 0 auto !important
+                    }
+                    .pc-post-s2.pc-m-invert {
+                        direction: ltr !important
+                    }
+                    .pc-sm-p-25-30-35 {
+                        padding: 25px 30px 35px !important
+                    }
+                    .pc-sm-p-35-30 {
+                        padding: 35px 30px !important
+                    }
+                    .pc-sm-p-31-20-39 {
+                        padding: 31px 20px 39px !important
+                    }
+                    }
+                </style>
+                <style type="text/css">
+                    @media screen and (max-width:525px) {
+                    .pc-xs-p-0 {
+                        padding: 0 !important
+                    }
+                    .pc-xs-p-25-20 {
+                        padding: 25px 20px !important
+                    }
+                    .pc-xs-p-18-20 {
+                        padding: 18px 20px !important
+                    }
+                    .pc-xs-p-10 {
+                        padding: 10px !important
+                    }
+                    .pc-xs-p-25-0-20 {
+                        padding: 25px 0 20px !important
+                    }
+                    .pc-xs-mw-100pc {
+                        max-width: 100% !important
+                    }
+                    .pc-xs-br-disabled br {
+                        display: none !important
+                    }
+                    .pc-xs-p-5-0 {
+                        padding: 5px 0 !important
+                    }
+                    .pc-xs-w-100pc {
+                        width: 100% !important
+                    }
+                    .pc-xs-p-10-0 {
+                        padding: 10px 0 !important
+                    }
+                    .pc-xs-p-15-20-25 {
+                        padding: 15px 20px 25px !important
+                    }
+                    .pc-xs-fs-30 {
+                        font-size: 30px !important
+                    }
+                    .pc-xs-lh-42 {
+                        line-height: 42px !important
+                    }
+                    .pc-xs-p-15-10-25 {
+                        padding: 15px 10px 25px !important
+                    }
+                    }
+                </style>
+                <!--[if mso]>
+                    <style type="text/css">
+                        .pc-fb-font {
+                            font-family: Helvetica, Arial, sans-serif !important;
+                        }
+                    </style>
+                    <![endif]-->
+                <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+                </head>
+                <body style="width: 100% !important; margin: 0; padding: 0; mso-line-height-rule: exactly; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #e8e8e8" data-gr-c-s-loaded="true" data-new-gr-c-s-check-loaded="14.980.0" class="">
+                <span style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"></span>
+                <div style="display: none !important; visibility: hidden; opacity: 0; overflow: hidden; mso-hide: all; height: 0; width: 0; max-height: 0; max-width: 0;">‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;</div>
+                <table class="pc-email-body" width="100%" bgcolor="#e8e8e8" border="0" cellpadding="0" cellspacing="0" role="presentation" style="table-layout: fixed;">
+                    <tbody>
+                    <tr>
+                        <td class="pc-email-body-inner" align="center" valign="top">
+                        <!--[if gte mso 9]>
+                            <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
+                                <v:fill type="tile" src="" color="#e8e8e8"></v:fill>
+                            </v:background>
+                            <![endif]-->
+                        <!--[if (gte mso 9)|(IE)]><table width="620" align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"><tr><td width="620" align="center" valign="top"><![endif]-->
+                        <table class="pc-email-container" width="100%" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto; max-width: 620px;">
+                            <tbody>
+                            <tr>
+                                <td align="left" valign="top" style="padding: 0 10px;">
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                                    <tbody>
+                                    <tr>
+                                        <td valign="top">
+                                        <!-- BEGIN MODULE: Menu 9 -->
+                                        <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td valign="top" bgcolor="#ffffff" style="background-color: #ffffff">
+                                                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="pc-sm-p-30 pc-xs-p-25-20" align="center" valign="top" style="padding: 30px 40px;">
+                                                        <a href="https://renmoney.com" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/Logo_Color-EXY.png" width="130" height="" alt="" style="max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #1B1B1B;"></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="1" valign="top" bgcolor="#dedede" style="background-color: rgba(0, 0, 0, 0.1); font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="pc-fb-font" valign="top" style="padding: 0px 40px; text-align: center; line-height: 20px; font-family: Helvetica, sans-serif; font-size: 14px" pc-default-class="pc-sm-p-18-30 pc-xs-p-18-20 pc-fb-font" pc-default-padding="18px 40px">
+                                                        <a href="https://renmoney.com/loans" style="text-decoration: none; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #005d82">Loans</a>
+                                                        <span class="pc-xs-p-0" style="padding: 0 23px;">&nbsp;&nbsp;</span>
+                                                        <a href="https://renmoney.com/savings" style="text-decoration: none; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #005d82">Savings</a>
+                                                        <span class="pc-xs-p-0" style="padding: 0 23px;">&nbsp;&nbsp;</span>
+                                                        <a href="https://renmoney.com/deposits" style="text-decoration: none; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #005d82">Fixed Deposits</a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Menu 9 -->
+                                        <!-- BEGIN MODULE: Menu 6 -->
+                                        <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" bgcolor="#ffffff" valign="top" style="padding: 0px 30px; background-color: #ffffff" pc-default-class="pc-sm-p-20 pc-xs-p-10" pc-default-padding="25px 30px">
+                                                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td align="center" valign="top" style="padding: 10px;">
+                                                        <a href="https://covid19.ncdc.gov.ng/" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/Test-4YC.png" width="300" height="" alt="" style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #1B1B1B; font-size: 14px;"></a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Menu 6 -->
+                                        <!-- BEGIN MODULE: undefined -->
+                                        <!-- END MODULE: undefined -->
+                                        <!-- BEGIN MODULE: Content 12 -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" style="padding: 0px 20px; background-color: #035e82" valign="top" bgcolor="#035e82" pc-default-class="pc-sm-p-15-10 pc-xs-p-5-0" pc-default-padding="20px">
+                                                <table class="pc-sm-ta-center" border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td valign="top" style="padding: 20px;">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                            <tbody>
+                                                            <tr>
+                                                                <td class="pc-fb-font" valign="top">
+                                                                <span style="line-height: 34px; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.4px; color: #ffffff">Part-liquidation of your Loan Account </span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td height="0" style="font-size: 1px; line-height: 1px">&nbsp;</td>
+                                                            </tr>
+                                                            </tbody>
+                                                            <tbody>
+                                                            </tbody>
+                                                        </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Content 12 -->
+                                        <!-- BEGIN MODULE: Content 9 -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" width="100%" valign="top" bgcolor="#ffffff" style="padding: 0px 40px 17px; background-color: #ffffff" pc-default-class="pc-sm-p-25-30-35 pc-xs-p-15-20-25" pc-default-padding="30px 40px 40px">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                    <tbody>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="pc-fb-font" style="line-height: 28px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 300; letter-spacing: -0.2px; color: #9B9B9B" valign="top"><span style="color: #555555;">Hello '.$client_name.',</span><br><span style="color: #555555;">&nbsp;</span><br><span style="color: #555555;">Please see below the new repayment schedule based on your Part Liquidation Request:</span><br><span style="color: #555555;">Liquidation Amount: <span style="color: #686868;">₦</span>'.$liquidationAmount.'&nbsp;</span><br><span style="color: #555555;">Loan ID:'.$loan.'&nbsp;</span><br>
+                                                        <a style="color: #555555;" href="'.$link.'"><span style="color: #015f82;">View</span> <span style="color: #015f82;">Schedule</span></a><span style="color: #555555;">&nbsp;</span><br><span style="color: #555555;">Click on the link above to Accept or Reject.&nbsp;</span><br><span style="color: #555555;">Please note that this link will expire after 24 hours.<br>&nbsp;</span><br>
+                                                        <span style="color: #555555;">For more inquiries, contact <span style="color: #015f82;">hello@renmoney.com</span><br><br><strong><span style="color: #015f82;">The Renmoney Team&nbsp;</span></strong> </span>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Content 9 -->
+                                        <!-- BEGIN MODULE: Footer 4 -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" style="padding: 0px 30px; background-color: #005d82" valign="top" bgcolor="#005d82" pc-default-class="pc-sm-p-31-20-39 pc-xs-p-15-10-25" pc-default-padding="31px 30px 39px">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td valign="top" style="font-size: 0;">
+                                                        <!--[if (gte mso 9)|(IE)]><table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation"><tr><td width="433" valign="top"><![endif]-->
+                                                        <div class="pc-sm-mw-100pc" style="display: inline-block; width: 100%; max-width: 433px; vertical-align: top;">
+                                                            <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                            <tbody>
+                                                                <tr>
+                                                                <td class="pc-fb-font" style="line-height: 20px; letter-spacing: -0.2px; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; padding: 10px; color: #ffffff" valign="top">23, Awolowo Road, Ikoyi, Lagos.<br>hello@renmoney.com<br>www.renmoney.com<br>0700 5000 500</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <!--[if (gte mso 9)|(IE)]></td><td width="107" valign="top"><![endif]-->
+                                                        <div class="pc-sm-mw-100pc" style="display: inline-block; width: 100%; max-width: 107px; vertical-align: top;">
+                                                            <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                            <tbody>
+                                                                <tr>
+                                                                <td valign="top" style="padding: 9px 0 10px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                        <td valign="middle" style="padding: 0 10px;">
+                                                                            <a href="https://www.facebook.com/renmoney/" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/facebook-white.png" width="15" height="15" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #ffffff;"></a>
+                                                                        </td>
+                                                                        <td valign="middle" style="padding: 0 10px;">
+                                                                            <a href="https://twitter.com/Renmoney" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/twitter-white.png" width="16" height="14" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #ffffff;"></a>
+                                                                        </td>
+                                                                        <td valign="middle" style="padding: 0 10px;">
+                                                                            <a href="https://www.instagram.com/renmoneyng/" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/instagram-white.png" width="16" height="15" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #ffffff;"></a>
+                                                                        </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                </tr>
+                                                            </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td height="0" style="font-size: 1px; line-height: 1px">&nbsp;</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Footer 4 -->
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!-- Fix for Gmail on iOS -->
+                <div class="pc-gmail-fix" style="white-space: nowrap; font: 15px courier; line-height: 0;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </div>
+                </body>
+                </html>
             ';
         } else {
             $content = '
-                <div style="font-family: verdana, Trebuchet ms, arial; line-height: 1.5em">
-                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
-                    <p style="margin-top:0;margin-bottom:0;">Dear '.$client_name.', </p>
-                    <p style="margin-top:0;margin-bottom:0;">Please see below the new repayment schedule based on your Bullk Payment Request<br>
-                    Bulk Amount: N'.$liquidationAmount.'<br>
-                    Loan ID:'.$loan.'<br>
-                    <a href='.$link.'>View Schedule</a> <br>
-                    Click on the Link above to Accept or Reject.<br>
-                    Please note that this link will expire after 24 hours. <br>
-                    For any enquiries, contact hello@renmoney.com</p>
-                    <p style="margin-top:0;margin-bottom:0;"><b>Thank you for choosing RenMoney MFB LTD.</b> </p>
-                    <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-bottom.png"> </p>
-                    <img data-imagetype="External" src="/actions/ei?u=http%3A%2F%2Furl7993.renmoney.com%2Fwf%2Fopen%3Fupn%3D41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D&amp;d=2020-10-02T05%3A34%3A50.506Z" originalsrc="http://url7993.renmoney.com/wf/open?upn=41xtn7k-2FRcosoYn6DwxG1-2BXTfUybVa4h7edFGl3JAG-2F-2FfqJLVBPnMU1KMUstVhJfuERqIIzADTZgE0jA-2FnIsyj65PZrWnoC-2F4r4iU2kB4ri4hITKh3uMah6-2BHGwEhXS4CLUjlXvp59bymbhMdWiZCn8yINjGinxUBSWwnHZku5D80FJoXPwZ2M05Oq8Y2mfNHdlSSLAqkDip4yTSS2Ee3A2QbWkHl6qj0VfZhHWWIRqszcPZ80C6G7WhGrChD4n8UXYkpRltYwI6A2BXYORTB1c0isOG3fStIRwIG1EXFfc-3D" data-connectorsauthtoken="1" data-imageproxyendpoint="/actions/ei" data-imageproxyid="" style="width:1px;height:1px;margin:0;padding:0;border-width:0;" border="0">
-                </div>
+
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <!--[if !mso]><!-->
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <!--<![endif]-->
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="format-detection" content="telephone=no">
+                <meta name="x-apple-disable-message-reformatting">
+                <title></title>
+                <style type="text/css">
+                    #outlook a {
+                    padding: 0;
+                    }
+                
+                    .ReadMsgBody,
+                    .ExternalClass {
+                    width: 100%;
+                    }
+                
+                    .ExternalClass,
+                    .ExternalClass p,
+                    .ExternalClass td,
+                    .ExternalClass div,
+                    .ExternalClass span,
+                    .ExternalClass font {
+                    line-height: 100%;
+                    }
+                
+                    div[style*="margin: 14px 0"],
+                    div[style*="margin: 16px 0"] {
+                    margin: 0 !important;
+                    }
+                
+                    table,
+                    td {
+                    mso-table-lspace: 0;
+                    mso-table-rspace: 0;
+                    }
+                
+                    table,
+                    tr,
+                    td {
+                    border-collapse: collapse;
+                    }
+                
+                    body,
+                    td,
+                    th,
+                    p,
+                    div,
+                    li,
+                    a,
+                    span {
+                    -webkit-text-size-adjust: 100%;
+                    -ms-text-size-adjust: 100%;
+                    mso-line-height-rule: exactly;
+                    }
+                
+                    img {
+                    border: 0;
+                    outline: none;
+                    line-height: 100%;
+                    text-decoration: none;
+                    -ms-interpolation-mode: bicubic;
+                    }
+                
+                    a[x-apple-data-detectors] {
+                    color: inherit !important;
+                    text-decoration: none !important;
+                    }
+                
+                    body {
+                    margin: 0;
+                    padding: 0;
+                    width: 100% !important;
+                    -webkit-font-smoothing: antialiased;
+                    }
+                
+                    .pc-gmail-fix {
+                    display: none;
+                    display: none !important;
+                    }
+                
+                    @media screen and (min-width: 621px) {
+                    .pc-email-container {
+                        width: 620px !important;
+                    }
+                    }
+                </style>
+                <style type="text/css">
+                    @media screen and (max-width:620px) {
+                    .pc-sm-p-30 {
+                        padding: 30px !important
+                    }
+                    .pc-sm-p-18-30 {
+                        padding: 18px 30px !important
+                    }
+                    .pc-sm-p-20 {
+                        padding: 20px !important
+                    }
+                    .pc-sm-p-35-10-30 {
+                        padding: 35px 10px 30px !important
+                    }
+                    .pc-sm-mw-50pc {
+                        max-width: 50% !important
+                    }
+                    .pc-sm-p-15-10 {
+                        padding: 15px 10px !important
+                    }
+                    .pc-sm-ta-center {
+                        text-align: center !important
+                    }
+                    .pc-sm-mw-100pc {
+                        max-width: 100% !important
+                    }
+                    .pc-sm-p-20-20-0 {
+                        padding: 20px 20px 0 !important
+                    }
+                    .pc-sm-p-16-20-20 {
+                        padding: 16px 20px 20px !important
+                    }
+                    .pc-sm-m-0-auto {
+                        margin: 0 auto !important
+                    }
+                    .pc-post-s2.pc-m-invert {
+                        direction: ltr !important
+                    }
+                    .pc-sm-p-25-30-35 {
+                        padding: 25px 30px 35px !important
+                    }
+                    .pc-sm-p-35-30 {
+                        padding: 35px 30px !important
+                    }
+                    .pc-sm-p-31-20-39 {
+                        padding: 31px 20px 39px !important
+                    }
+                    }
+                </style>
+                <style type="text/css">
+                    @media screen and (max-width:525px) {
+                    .pc-xs-p-0 {
+                        padding: 0 !important
+                    }
+                    .pc-xs-p-25-20 {
+                        padding: 25px 20px !important
+                    }
+                    .pc-xs-p-18-20 {
+                        padding: 18px 20px !important
+                    }
+                    .pc-xs-p-10 {
+                        padding: 10px !important
+                    }
+                    .pc-xs-p-25-0-20 {
+                        padding: 25px 0 20px !important
+                    }
+                    .pc-xs-mw-100pc {
+                        max-width: 100% !important
+                    }
+                    .pc-xs-br-disabled br {
+                        display: none !important
+                    }
+                    .pc-xs-p-5-0 {
+                        padding: 5px 0 !important
+                    }
+                    .pc-xs-w-100pc {
+                        width: 100% !important
+                    }
+                    .pc-xs-p-10-0 {
+                        padding: 10px 0 !important
+                    }
+                    .pc-xs-p-15-20-25 {
+                        padding: 15px 20px 25px !important
+                    }
+                    .pc-xs-fs-30 {
+                        font-size: 30px !important
+                    }
+                    .pc-xs-lh-42 {
+                        line-height: 42px !important
+                    }
+                    .pc-xs-p-15-10-25 {
+                        padding: 15px 10px 25px !important
+                    }
+                    }
+                </style>
+                <!--[if mso]>
+                    <style type="text/css">
+                        .pc-fb-font {
+                            font-family: Helvetica, Arial, sans-serif !important;
+                        }
+                    </style>
+                    <![endif]-->
+                <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+                </head>
+                <body style="width: 100% !important; margin: 0; padding: 0; mso-line-height-rule: exactly; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #e8e8e8" data-gr-c-s-loaded="true" data-new-gr-c-s-check-loaded="14.980.0" class="">
+                <span style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"></span>
+                <div style="display: none !important; visibility: hidden; opacity: 0; overflow: hidden; mso-hide: all; height: 0; width: 0; max-height: 0; max-width: 0;">‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;</div>
+                <table class="pc-email-body" width="100%" bgcolor="#e8e8e8" border="0" cellpadding="0" cellspacing="0" role="presentation" style="table-layout: fixed;">
+                    <tbody>
+                    <tr>
+                        <td class="pc-email-body-inner" align="center" valign="top">
+                        <!--[if gte mso 9]>
+                            <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
+                                <v:fill type="tile" src="" color="#e8e8e8"></v:fill>
+                            </v:background>
+                            <![endif]-->
+                        <!--[if (gte mso 9)|(IE)]><table width="620" align="center" border="0" cellspacing="0" cellpadding="0" role="presentation"><tr><td width="620" align="center" valign="top"><![endif]-->
+                        <table class="pc-email-container" width="100%" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto; max-width: 620px;">
+                            <tbody>
+                            <tr>
+                                <td align="left" valign="top" style="padding: 0 10px;">
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+                                    <tbody>
+                                    <tr>
+                                        <td valign="top">
+                                        <!-- BEGIN MODULE: Menu 9 -->
+                                        <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td valign="top" bgcolor="#ffffff" style="background-color: #ffffff">
+                                                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="pc-sm-p-30 pc-xs-p-25-20" align="center" valign="top" style="padding: 30px 40px;">
+                                                        <a href="https://renmoney.com" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/Logo_Color-EXY.png" width="130" height="" alt="" style="max-width: 100%; height: auto; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #1B1B1B;"></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="1" valign="top" bgcolor="#dedede" style="background-color: rgba(0, 0, 0, 0.1); font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="pc-fb-font" valign="top" style="padding: 0px 40px; text-align: center; line-height: 20px; font-family: Helvetica, sans-serif; font-size: 14px" pc-default-class="pc-sm-p-18-30 pc-xs-p-18-20 pc-fb-font" pc-default-padding="18px 40px">
+                                                        <a href="https://renmoney.com/loans" style="text-decoration: none; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #005d82">Loans</a>
+                                                        <span class="pc-xs-p-0" style="padding: 0 23px;">&nbsp;&nbsp;</span>
+                                                        <a href="https://renmoney.com/savings" style="text-decoration: none; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #005d82">Savings</a>
+                                                        <span class="pc-xs-p-0" style="padding: 0 23px;">&nbsp;&nbsp;</span>
+                                                        <a href="https://renmoney.com/deposits" style="text-decoration: none; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #005d82">Fixed Deposits</a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Menu 9 -->
+                                        <!-- BEGIN MODULE: Menu 6 -->
+                                        <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" bgcolor="#ffffff" valign="top" style="padding: 0px 30px; background-color: #ffffff" pc-default-class="pc-sm-p-20 pc-xs-p-10" pc-default-padding="25px 30px">
+                                                <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td align="center" valign="top" style="padding: 10px;">
+                                                        <a href="https://covid19.ncdc.gov.ng/" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/Test-4YC.png" width="300" height="" alt="" style="height: auto; max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; color: #1B1B1B; font-size: 14px;"></a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Menu 6 -->
+                                        <!-- BEGIN MODULE: undefined -->
+                                        <!-- END MODULE: undefined -->
+                                        <!-- BEGIN MODULE: Content 12 -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" style="padding: 0px 20px; background-color: #035e82" valign="top" bgcolor="#035e82" pc-default-class="pc-sm-p-15-10 pc-xs-p-5-0" pc-default-padding="20px">
+                                                <table class="pc-sm-ta-center" border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td valign="top" style="padding: 20px;">
+                                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                            <tbody>
+                                                            <tr>
+                                                                <td class="pc-fb-font" valign="top">
+                                                                <span style="line-height: 34px; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.4px; color: #ffffff">Part-liquidation of your Loan Account </span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td height="0" style="font-size: 1px; line-height: 1px">&nbsp;</td>
+                                                            </tr>
+                                                            </tbody>
+                                                            <tbody>
+                                                            </tbody>
+                                                        </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Content 12 -->
+                                        <!-- BEGIN MODULE: Content 9 -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" width="100%" valign="top" bgcolor="#ffffff" style="padding: 0px 40px 17px; background-color: #ffffff" pc-default-class="pc-sm-p-25-30-35 pc-xs-p-15-20-25" pc-default-padding="30px 40px 40px">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                    <tbody>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td height="20" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="pc-fb-font" style="line-height: 28px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 300; letter-spacing: -0.2px; color: #9B9B9B" valign="top"><span style="color: #555555;">Hello '.$client_name.',</span><br><span style="color: #555555;">&nbsp;</span><br><span style="color: #555555;">Please see below the new repayment schedule based on your Part Liquidation Request:</span><br><span style="color: #555555;">Liquidation Amount: <span style="color: #686868;">₦</span>'.$liquidationAmount.'&nbsp;</span><br><span style="color: #555555;">Loan ID:'.$loan.'&nbsp;</span><br>
+                                                        <a style="color: #555555;" href="'.$link.'"><span style="color: #015f82;">View</span> <span style="color: #015f82;">Schedule</span></a><span style="color: #555555;">&nbsp;</span><br><span style="color: #555555;">Click on the link above to Accept or Reject.&nbsp;</span><br><span style="color: #555555;">Please note that this link will expire after 24 hours.<br>&nbsp;</span><br>
+                                                        <span style="color: #555555;">For more inquiries, contact <span style="color: #015f82;">hello@renmoney.com</span><br><br><strong><span style="color: #015f82;">The Renmoney Team&nbsp;</span></strong> </span>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Content 9 -->
+                                        <!-- BEGIN MODULE: Footer 4 -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                            <tbody>
+                                            <tr>
+                                                <td class="" style="padding: 0px 30px; background-color: #005d82" valign="top" bgcolor="#005d82" pc-default-class="pc-sm-p-31-20-39 pc-xs-p-15-10-25" pc-default-padding="31px 30px 39px">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td valign="top" style="font-size: 0;">
+                                                        <!--[if (gte mso 9)|(IE)]><table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation"><tr><td width="433" valign="top"><![endif]-->
+                                                        <div class="pc-sm-mw-100pc" style="display: inline-block; width: 100%; max-width: 433px; vertical-align: top;">
+                                                            <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                            <tbody>
+                                                                <tr>
+                                                                <td class="pc-fb-font" style="line-height: 20px; letter-spacing: -0.2px; font-family: Helvetica, Helvetica, Arial, sans-serif; font-size: 14px; padding: 10px; color: #ffffff" valign="top">23, Awolowo Road, Ikoyi, Lagos.<br>hello@renmoney.com<br>www.renmoney.com<br>0700 5000 500</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <!--[if (gte mso 9)|(IE)]></td><td width="107" valign="top"><![endif]-->
+                                                        <div class="pc-sm-mw-100pc" style="display: inline-block; width: 100%; max-width: 107px; vertical-align: top;">
+                                                            <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                            <tbody>
+                                                                <tr>
+                                                                <td valign="top" style="padding: 9px 0 10px;">
+                                                                    <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                        <td valign="middle" style="padding: 0 10px;">
+                                                                            <a href="https://www.facebook.com/renmoney/" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/facebook-white.png" width="15" height="15" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #ffffff;"></a>
+                                                                        </td>
+                                                                        <td valign="middle" style="padding: 0 10px;">
+                                                                            <a href="https://twitter.com/Renmoney" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/twitter-white.png" width="16" height="14" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #ffffff;"></a>
+                                                                        </td>
+                                                                        <td valign="middle" style="padding: 0 10px;">
+                                                                            <a href="https://www.instagram.com/renmoneyng/" style="text-decoration: none;"><img src="https://designmodo-postcards-prod.s3.amazonaws.com/instagram-white.png" width="16" height="15" alt="" style="border: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #ffffff;"></a>
+                                                                        </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                </tr>
+                                                            </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td height="0" style="font-size: 1px; line-height: 1px">&nbsp;</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <!-- END MODULE: Footer 4 -->
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <!-- Fix for Gmail on iOS -->
+                <div class="pc-gmail-fix" style="white-space: nowrap; font: 15px courier; line-height: 0;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </div>
+                </body>
+                </html>
             ';
         }
         
