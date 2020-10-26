@@ -154,7 +154,7 @@ class Client extends CI_Controller {
         ->set_content_type('application/json')
         ->set_status_header(400)
         ->set_output(
-            json_encode($this->input->post('liquidation_amount'))
+            json_encode($bulk_amount)
         );
         $loan_id = $this->input->post('loan_id');
         
