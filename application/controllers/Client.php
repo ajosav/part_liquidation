@@ -141,6 +141,7 @@ class Client extends CI_Controller {
    
 
     public function reject_schedule() {
+        $this->Base_model->dd($this->input->post());
         $reason = $this->input->post('rejection_reason');
         $schedule_id = $this->input->post('schedule_id');
         $rejection_state = $this->input->post('rejection_state');
@@ -148,7 +149,7 @@ class Client extends CI_Controller {
         $client_lname = $this->input->post('client_lname');
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
-        $bulk_amount = $this->input->post('liquidationAmount');
+        $bulk_amount = $this->input->post('liquidation_amount');
         $loan_id = $this->input->post('loan_id');
         
         $status = 3;
