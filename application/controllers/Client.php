@@ -150,12 +150,6 @@ class Client extends CI_Controller {
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
         $bulk_amount = $this->input->post('liquidation_amount');
-        return $this->output
-        ->set_content_type('application/json')
-        ->set_status_header(400)
-        ->set_output(
-            json_encode($bulk_amount)
-        );
         $loan_id = $this->input->post('loan_id');
         
         $status = 3;
@@ -1023,8 +1017,15 @@ class Client extends CI_Controller {
 
             if($this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], $data)) {
                 $this->Base_model->notifyMail($team_email_body);
+                return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(
+                    json_encode($bulk_amount)
+                );
                 if($rejection_state == "refund") {
                     $this->Base_model->notifyMail($refund_email_body);
+
                     
                 } else {
                     $this->Base_model->notifyMail($repayment_email_body);
