@@ -164,7 +164,7 @@ class Client extends CI_Controller {
         <div style="font-family: verdana, Trebuchet ms, arial;">
             <p style="margin-top:0;margin-bottom:0;"><img data-imagetype="External" src="https://renbrokerstaging.com/images/uploads/email-template-top.png"> </p>
                 <p>Dear Team</p>
-                <p>Please note that '.$client_fname. ' '. $client_lname .' has rejected the New repayment schedule. </br>
+                <p>Please note that '.$client_fname. ' '. $client_lname .' has rejected the New repayment schedule. <br>
                 Reason: '.$reject_state_prefix.' '.$rejection_state.'<br>
                 Details: '.$reason.'<br>
                 Loan ID: '.$loan_id.'<br>
@@ -1017,16 +1017,8 @@ class Client extends CI_Controller {
 
             if($this->Base_model->update_table('loan_schedule', ['schedule_id' => $schedule_id], $data)) {
                 $this->Base_model->notifyMail($team_email_body);
-                return $this->output
-                ->set_content_type('application/json')
-                ->set_status_header(400)
-                ->set_output(
-                    json_encode($bulk_amount)
-                );
                 if($rejection_state == "refund") {
-                    $this->Base_model->notifyMail($refund_email_body);
-
-                    
+                    $this->Base_model->notifyMail($refund_email_body);  
                 } else {
                     $this->Base_model->notifyMail($repayment_email_body);
                 }
@@ -1284,12 +1276,28 @@ class Client extends CI_Controller {
 
         
         if($loan_schedule->outstandingBalance > 0) {
-            $repayment_data = [
-                "type" => "REPAYMENT",
-                "amount" => round($loan_schedule->outstandingBalance, 2),
-                "date" => date('Y-m-d'),
-                "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment"
-            ];
+            if($loan_schedule->transaction_method != '') {
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->outstandingBalance, 2),
+                    "date" => date('Y-m-d'),
+                    "method" => $loan_schedule->transactionChannel,
+                    "customInformation" => [
+                        [
+                            "value" => $loan_schedule->transaction_method,
+                            "customFieldID" => "Repayment_Method_Transactions"
+                        ]
+                    ],
+                    "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment"
+                ];
+            } else {
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->outstandingBalance, 2),
+                    "date" => date('Y-m-d'),
+                    "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment"
+                ];
+            }
             $data = [
                 "message" => "Entering late repayments for loan {$loan_id}",
                 "details" => json_encode($repayment_data),
@@ -1302,20 +1310,29 @@ class Client extends CI_Controller {
             $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
 
             if(isset($response['returnCode'])) {
-                $data = [
-                    "message" => "Failed to pay late instalments {$loan_id}",
-                    "details" => json_encode($response['returnStatus']),
-                    "schedule_id" => $schedule_id,
-                    "loan_id" => $loan_id,
-                    "date" => date('Y-m-d H:i:s')
+                $repayment_data = [
+                    "type" => "REPAYMENT",
+                    "amount" => round($loan_schedule->outstandingBalance, 2),
+                    "date" => date('Y-m-d'),
+                    "notes" => "BEING late instalment repayment of Bulk amount $loan_schedule->liquidationAmount. TransactionDate: $loan_schedule->transactionDate. $loan_schedule->comment"
                 ];
-                $this->Base_model->create('liquidation_log', $data);
-                return $this->output
-                ->set_content_type('application/json')
-                ->set_status_header(400)
-                ->set_output(
-                    json_encode($response['returnStatus'])
-                );
+                $response = json_decode($this->Base_model->call_mambu_api($transaction_url, $repayment_data), TRUE);
+                if(isset($response['returnCode'])) {
+                    $data = [
+                        "message" => "Failed to pay late instalments {$loan_id}",
+                        "details" => json_encode($response['returnStatus']),
+                        "schedule_id" => $schedule_id,
+                        "loan_id" => $loan_id,
+                        "date" => date('Y-m-d H:i:s')
+                    ];
+                    $this->Base_model->create('liquidation_log', $data);
+                    return $this->output
+                    ->set_content_type('application/json')
+                    ->set_status_header(400)
+                    ->set_output(
+                        json_encode($response['returnStatus'])
+                    );
+                }
             }
 
             $data = [
