@@ -141,13 +141,7 @@ class Client extends CI_Controller {
    
 
     public function reject_schedule() {
-        return $this->output
-        ->set_content_type('application/json')
-        ->set_status_header(400)
-        ->set_output(
-            json_encode($this->input->post())
-        );
-        // $this->Base_model->dd($this->input->post());
+       // $this->Base_model->dd($this->input->post());
         $reason = $this->input->post('rejection_reason');
         $schedule_id = $this->input->post('schedule_id');
         $rejection_state = $this->input->post('rejection_state');
@@ -156,6 +150,12 @@ class Client extends CI_Controller {
         $client_email = $this->input->post('client_email');
         $client_phone = $this->input->post('client_phone');
         $bulk_amount = $this->input->post('liquidation_amount');
+        return $this->output
+        ->set_content_type('application/json')
+        ->set_status_header(400)
+        ->set_output(
+            json_encode($this->input->post('liquidation_amount'))
+        );
         $loan_id = $this->input->post('loan_id');
         
         $status = 3;
