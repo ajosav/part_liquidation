@@ -41,7 +41,7 @@
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="bulk_amount">Bulk Amount (&#8358;)</label>
-                                                    <input type="text"  placeholder="Bulk Amount" name="liquidationAmount" class="form-control" value="<?= number_format($loan_schedule->liquidationAmount, 2) ?>" title="Liquidation Amount" readonly>
+                                                    <input type="text"  placeholder="Bulk Amount" name="liquidation_amount" class="form-control" value="<?= number_format($loan_schedule->liquidationAmount, 2) ?>" title="Liquidation Amount" readonly>
                                                 </div>
                                                 <div class="col-lg-4">
                                                     <label for="date_generated">Date Generated</label>
@@ -155,6 +155,7 @@
                                         <div class="form-row">
                                             <div class="form-group">
                                                 <input type="hidden" name="loan_id" value="<?= $loan_schedule->loan_id ?>">
+                                                <input type="hidden" name="liquidation_amount" value="<?= number_format($loan_schedule->liquidationAmount, 2) ?>">
                                                 <input type="hidden" name="client_fname" value="<?= $client_details['client']['firstName'] ?>">
                                                 <input type="hidden" name="client_lname" value="<?= $client_details['client']['lastName'] ?>">
                                                 <input type="hidden" name="client_email" value="<?= $client_details['client']['emailAddress'] ?>">
