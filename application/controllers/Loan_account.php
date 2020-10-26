@@ -331,6 +331,18 @@ class Loan_account extends CI_Controller {
             $new_schedule = [];
             $rate = $interest_rate;  $new_principal_bal; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
             // $rate = 8.14; $new_tenure = 11; $new_principal_bal = 250000.00; $fv = 0; $type = 0; $fee_rate = (0.00 / 100);
+
+            if($tenor < $max_tenor) {
+                if(isset($_POST['warning'])) {
+                   return $this->output
+                   ->set_content_type('application/json')
+                   ->set_status_header(200)
+                   ->set_output(
+                       json_encode(["status" => "warning", "message" => "Client DTI will be increased"])
+                   );
+               }
+           }
+
             $tenor = $tenor > 0 ? $tenor : 1;
             // create a new repayment schedule
             if(in_array($productTypeKey, $mbls)) {

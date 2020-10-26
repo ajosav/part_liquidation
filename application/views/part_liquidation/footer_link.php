@@ -226,6 +226,8 @@
             var schedule_id = $(this).attr('data-id');
 
             var form = $('form#rejection_form').serialize() + `&schedule_id=${schedule_id}`;
+            console.log(form);
+            return;
             $.ajax({
             url: base_url+"client/reject_schedule",
             data: form,

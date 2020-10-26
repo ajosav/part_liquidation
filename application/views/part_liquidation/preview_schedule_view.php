@@ -11,7 +11,7 @@
                                 
                                 <?php if($new_repayment_due > $mambu_repayment_due):?>
                                     <div class="col-md-12">
-                                        <p class="text-danger" style="padding: 5px;"><b>Note: </b>Total due amount per installment is greater. if this is a Remita Client Please take note</p>
+                                        <p class="text-danger" style="padding: 5px;"><b>Note:  DTI Exceeded! </b>Total due amount per installment is greater. if this is a Remita Client Please take note</p>
                                     </div>
 
                                 <?php endif ?>
